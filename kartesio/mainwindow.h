@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "ui_mainwindow.h"
+
 #include <QMainWindow>
 #include "QTableWidget"
 #include "QLineEdit"
@@ -31,14 +33,16 @@
 #include "kplotobject.h"
 #include "kplotpoint.h"
 #include <kdebug.h>
+#include "kaction.h"
+#include "klocale.h"
+#include "kactioncollection.h"
+#include "kstandardaction.h"
+
+#include "kxmlguiwindow.h"
 
 using namespace std;
 
-namespace Ui {
-    class MainWindow;
-}
-
-class MainWindow : public QMainWindow
+class MainWindow : public KXmlGuiWindow
 {
     Q_OBJECT
 
@@ -52,23 +56,21 @@ private slots:
     void on_xmax_valueChanged(double );
     void on_ymin_valueChanged(double );
     void on_ymax_valueChanged(double );
-    //void on_pushButton_2_clicked();
+
     void on_actionNew_triggered();
-
     void on_fitplot_stateChanged(int );
-
     void on_originalplot_stateChanged(int );
-
     void on_actionShow_example_triggered();
 
-    void on_actionDraw_plot_triggered();
-
 private:
-    Ui::MainWindow *ui;
+    //Ui::MainWindow *ui;
+    //Ui::MainWindow ui;
+    Ui::centralWidget uid;
+    Ui::centralWidget *ui;
     QString calculate(QTableWidget *table,  QLineEdit *func);
     QString solvex(char *yvalue, QString dnum);
     QString replacevar(char *yvalue, QString dnum, QString var);
-    //void plot(QTableWidget *table, QString function);
+    void drawpl();
     void plot(QTableWidget *table, QString function, bool original, bool funz);
     QString redplot;
     QString greenplot;

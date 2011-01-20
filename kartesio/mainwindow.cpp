@@ -1,11 +1,22 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : KXmlGuiWindow(parent)
 {
-    ui->setupUi(this);
+
+    KAction* clearAction = new KAction(this);
+    clearAction->setText(i18n("&Clear"));
+    clearAction->setIcon(KIcon("document-new"));
+    clearAction->setShortcut(Qt::CTRL + Qt::Key_N);
+    actionCollection()->addAction("clear", clearAction);
+
+//setupGUI();
+setupGUI(Default, "kartesioui.rc");
+    QWidget *widget = new QWidget( this );
+
+    // create the user interface, the parent widget is "widget"
+    uid.setupUi(widget);
+    setCentralWidget(widget);
 
     xmin = 0;
     xmax = 50;
@@ -13,7 +24,24 @@ MainWindow::MainWindow(QWidget *parent) :
     ymax = 50;
     width = int(xmax - xmin);
 
-    plot(ui->tableWidget, "",ui->originalplot->isChecked(),ui->fitplot->isChecked());
+    plot(uid.tableWidget, "",uid.originalplot->isChecked(),uid.fitplot->isChecked());
+
+    /*KAction* clearAction = new KAction(this);
+    clearAction->setText(i18n("&Clear"));
+    clearAction->setIcon(KIcon("document-new"));
+    clearAction->setShortcut(Qt::CTRL + Qt::Key_N);
+    actionCollection()->addAction("clear", clearAction);*/
+    connect(clearAction, SIGNAL(triggered(bool)),this, SLOT(on_actionShow_example_triggered()));
+    //KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
+
+    connect( uid.pushButton, SIGNAL( clicked() ),this, SLOT( on_pushButton_clicked() ) );
+    connect( uid.xmin, SIGNAL( valueChanged(double ) ),this, SLOT( on_xmin_valueChanged(double ) ) );
+    connect( uid.xmax, SIGNAL( valueChanged(double ) ),this, SLOT( on_xmax_valueChanged(double ) ) );
+    connect( uid.ymin, SIGNAL( valueChanged(double ) ),this, SLOT( on_ymin_valueChanged(double ) ) );
+    connect( uid.ymax, SIGNAL( valueChanged(double ) ),this, SLOT( on_ymax_valueChanged(double ) ) );
+    connect( uid.fitplot, SIGNAL( stateChanged(int ) ),this, SLOT( on_fitplot_stateChanged(int ) ) );
+    connect( uid.originalplot, SIGNAL( stateChanged(int ) ),this, SLOT( on_originalplot_stateChanged(int ) ) );
+
 }
 
 MainWindow::~MainWindow()
@@ -23,10 +51,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    QString value = calculate(ui->tableWidget,  ui->function);
-    QString tempstr = value.split("=").at(1);
-    ui->result->setText(value);
-    if (ui->function->text()!="") plot(ui->tableWidget, tempstr, ui->originalplot->isChecked(),ui->fitplot->isChecked());
+    //if (uid.function->text()!="") {
+        QString value = calculate(uid.tableWidget,  uid.function);
+        uid.result->setText(value);
+    //}
+    //for some reason if we call directly the function plot, the program crashes
+    drawpl();
+
+}
+
+void MainWindow::drawpl(){
+    QString tempstr = "";
+    if (uid.result->text()!="") tempstr = uid.result->text().split("=").at(1);
+    plot(uid.tableWidget, tempstr,uid.originalplot->isChecked(),uid.fitplot->isChecked());
 }
 
 QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
@@ -35,9 +72,9 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
     width = int(xmax - xmin);
     int totalcoeff=0;
     QStringList coeff;
-    //ui->label->setText("");
+    //uid.label->setText("");
     QString myfunz;
-    //ui->tableWidget->sortItems(1, Qt::AscendingOrder); //seems that the sorting doesn't work correctly
+    //uid.tableWidget->sortItems(1, Qt::AscendingOrder); //seems that the sorting doesn't work correctly
     if (!table->item(0,0) || table->item(0,0)->text().isEmpty())
     {
         //go on
@@ -155,14 +192,14 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
             QStringList mnval = cmvalue.at(n).split("=");
             QScriptEngine myEnginee;
             QScriptValue isreal = myEnginee.evaluate(mnval.at(1)+"*0");
-            //QString eef = ui->label_2->text();
-            //ui->label_2->setText(eef + "|" + isreal.toString());
+            //QString eef = uid.label_2->text();
+            //uid.label_2->setText(eef + "|" + isreal.toString());
             if (isreal.toString()!="0") good = 0;
             }
         }
 
-        //QString rrf = ui->label->text();
-        //ui->label->setText(rrf+"|"+cancstr);
+        //QString rrf = uid.label->text();
+        //uid.label->setText(rrf+"|"+cancstr);
 
         myfunz = func->text();
         //resfunz = myfunz;
@@ -199,11 +236,12 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
 }
 
 void MainWindow::plot(QTableWidget *table, QString function, bool original, bool funz){
+
     //this function plots the original points and the best fit curve
     width = int(xmax - xmin);
     //now I'm preparing the kplot widget
-    ui->kplotwidget->removeAllPlotObjects();
-    ui->kplotwidget->setLimits( xmin, xmax, ymin, ymax ); //now I need to set the limits of the plot
+    uid.kplotwidget->removeAllPlotObjects();
+    uid.kplotwidget->setLimits( xmin, xmax, ymin, ymax ); //now I need to set the limits of the plot
 
     KPlotObject *kpor = new KPlotObject( Qt::red, KPlotObject::Lines );
     KPlotObject *kpog = new KPlotObject( Qt::green, KPlotObject::Lines );
@@ -212,7 +250,7 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
     greenplot = "<polyline points=\"";
     blueplot = "<polyline points=\"";
 
-    //ui->tableWidget->sortItems(1, Qt::AscendingOrder); //seems that the sorting doesn't work correctly
+    //uid.tableWidget->sortItems(1, Qt::AscendingOrder); //seems that the sorting doesn't work correctly
     if (!table->item(0,0) || table->item(0,0)->text().isEmpty())
     {
         //go on
@@ -252,9 +290,9 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
         }
     } //here ends the experimental values mode
 
-    ui->kplotwidget->addPlotObject(kpor);
-    ui->kplotwidget->addPlotObject(kpog);
-    ui->kplotwidget->addPlotObject(kpob);
+    uid.kplotwidget->addPlotObject(kpor);
+    uid.kplotwidget->addPlotObject(kpog);
+    uid.kplotwidget->addPlotObject(kpob);
 
     redplot = redplot + "\" style=\"stroke:red;fill:none\"/> ";
     blueplot = blueplot + "\" style=\"stroke:blue;fill:none\"/> ";
@@ -368,42 +406,42 @@ QString MainWindow::replacevar(char *yvalue, QString dnum, QString var) {
 void MainWindow::on_xmin_valueChanged(double val)
 {
     xmin = val;
-    on_pushButton_clicked(); //please take note that calling directly the plot() function will give a wrong value for equivalence point
+    on_pushButton_clicked();
 }
 
 void MainWindow::on_xmax_valueChanged(double val)
 {
     xmax = val;
-    on_pushButton_clicked(); //please take note that calling directly the plot() function will give a wrong value for equivalence point
+    on_pushButton_clicked();
 }
 
 void MainWindow::on_ymin_valueChanged(double val)
 {
     ymin = val;
-    on_pushButton_clicked(); //please take note that calling directly the plot() function will give a wrong value for equivalence point
+    on_pushButton_clicked();
 }
 
 void MainWindow::on_ymax_valueChanged(double val)
 {
     ymax = val;
-    on_pushButton_clicked(); //please take note that calling directly the plot() function will give a wrong value for equivalence point
+    on_pushButton_clicked();
 }
 
 
 void MainWindow::on_actionNew_triggered()
 {
     //set all the table cells as empty ("")
-    for (int i=0; i<ui->tableWidget->rowCount() ; i++) {
+    for (int i=0; i<uid.tableWidget->rowCount() ; i++) {
         QTableWidgetItem *titem = new QTableWidgetItem ;
         titem->setText("");
-        ui->tableWidget->setItem(i,0,titem);
+        uid.tableWidget->setItem(i,0,titem);
         QTableWidgetItem *titemo = new QTableWidgetItem ;
         titemo->setText("");
-        ui->tableWidget->setItem(i,1,titemo);
+        uid.tableWidget->setItem(i,1,titemo);
     }
-    ui->function->setText("") ;
-    ui->result->setText("") ;
-    plot(ui->tableWidget, "",ui->originalplot->isChecked(),ui->fitplot->isChecked());
+    uid.function->setText("") ;
+    uid.result->setText("") ;
+    plot(uid.tableWidget, "",uid.originalplot->isChecked(),uid.fitplot->isChecked());
 }
 
 void MainWindow::on_fitplot_stateChanged(int )
@@ -419,32 +457,27 @@ void MainWindow::on_originalplot_stateChanged(int )
 void MainWindow::on_actionShow_example_triggered()
 {
     on_actionNew_triggered();
-    QTableWidgetItem *titemo = ui->tableWidget->item(0,0);
-    titemo = ui->tableWidget->item(0,0);
+    QTableWidgetItem *titemo = uid.tableWidget->item(0,0);
+    titemo = uid.tableWidget->item(0,0);
     titemo->setText("7,19");
-    titemo = ui->tableWidget->item(0,1);
+    titemo = uid.tableWidget->item(0,1);
     titemo->setText("30");
-    titemo = ui->tableWidget->item(1,0);
+    titemo = uid.tableWidget->item(1,0);
     titemo->setText("7,64");
-    titemo = ui->tableWidget->item(1,1);
+    titemo = uid.tableWidget->item(1,1);
     titemo->setText("30,5");
-    titemo = ui->tableWidget->item(2,0);
+    titemo = uid.tableWidget->item(2,0);
     titemo->setText("10,02");
-    titemo = ui->tableWidget->item(2,1);
+    titemo = uid.tableWidget->item(2,1);
     titemo->setText("31");
-    titemo = ui->tableWidget->item(3,0);
+    titemo = uid.tableWidget->item(3,0);
     titemo->setText("10,45");
-    titemo = ui->tableWidget->item(3,1);
+    titemo = uid.tableWidget->item(3,1);
     titemo->setText("31,5");
 
-    ui->function->setText("y=(a*(x^3))+(b*(x^2))+(c*x)+d");
-    ui->xmin->setValue(30.00);
-    ui->xmax->setValue(32.00);
-    ui->ymin->setValue(6.00);
-    ui->ymax->setValue(13.00);
-}
-
-void MainWindow::on_actionDraw_plot_triggered()
-{
-    on_pushButton_clicked();
+    uid.function->setText("y=(a*(x^3))+(b*(x^2))+(c*x)+d");
+    uid.xmin->setValue(30.00);
+    uid.xmax->setValue(32.00);
+    uid.ymin->setValue(6.00);
+    uid.ymax->setValue(13.00);
 }
