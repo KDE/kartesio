@@ -1,0 +1,14 @@
+# KDE Config File
+[Desktop Entry]
+Type=Application
+Exec=kartesio -caption "%c" %i
+Icon=kartesio
+X-DocPath=kartesio/index.html
+MimeType=chemical/x-cml;
+Comment=Calculate a best fit curve for some points
+Comment[it]=Calcola una curva che approssima alcuni punti
+Terminal=false
+Name=Kartesio
+GenericName=Best fit curve calculator
+GenericName[it]=Calcolatore di curve di aprossimazione
+Categories=Qt;KDE;Education;Science;Chemistry;Math;Phisycs;

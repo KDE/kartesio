@@ -5,11 +5,61 @@ MainWindow::MainWindow(QWidget *parent)
 {
 
     KAction* clearAction = new KAction(this);
-    clearAction->setText(i18n("&Clear"));
+    clearAction->setText(i18n("&New"));
     clearAction->setIcon(KIcon("document-new"));
     clearAction->setShortcut(Qt::CTRL + Qt::Key_N);
     actionCollection()->addAction("clear", clearAction);
+    
+    KAction* openAction = new KAction(this);
+    openAction->setText(i18n("&Open"));
+    openAction->setIcon(KIcon("document-open"));
+    openAction->setShortcut(Qt::CTRL + Qt::Key_O);
+    actionCollection()->addAction("open", openAction);
+    
+    KAction* saveAction = new KAction(this);
+    saveAction->setText(i18n("&Save"));
+    saveAction->setIcon(KIcon("document-save"));
+    saveAction->setShortcut(Qt::CTRL + Qt::Key_S);
+    actionCollection()->addAction("save", saveAction);
+    
+    KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
+    
+    KAction* saveasAction = new KAction(this);
+    saveasAction->setText(i18n("&Save as"));
+    saveasAction->setIcon(KIcon("document-save"));
+    actionCollection()->addAction("saveas", saveasAction);
+    
+    KAction* plotAction = new KAction(this);
+    plotAction->setText(i18n("Draw &Plot"));
+    plotAction->setIcon(KIcon("kmplot"));
+    plotAction->setShortcut(Qt::CTRL + Qt::Key_P);
+    actionCollection()->addAction("plot", plotAction);
+    
+    KAction* exampleAction = new KAction(this);
+    exampleAction->setText(i18n("Show &Example"));
+    exampleAction->setShortcut(Qt::CTRL + Qt::Key_E);
+    actionCollection()->addAction("example", exampleAction);
+    
+    KAction*expsvgAction = new KAction(this);
+    expsvgAction->setText(i18n("Export as SVG"));
+    expsvgAction->setIcon(KIcon("image-svg+xml"));
+    actionCollection()->addAction("expsvg", expsvgAction);
+    
+    KAction*exptexAction = new KAction(this);
+    exptexAction->setText(i18n("Export as Latex"));
+    exptexAction->setIcon(KIcon("text-x-tex"));
+    actionCollection()->addAction("exptex", exptexAction);
 
+    connect(clearAction, SIGNAL(triggered(bool)),this, SLOT(on_actionNew_triggered()));
+    connect(plotAction, SIGNAL(triggered(bool)),this, SLOT(on_pushButton_clicked()));
+    connect(openAction, SIGNAL(triggered(bool)),this, SLOT(on_actionOpen_triggered()));
+    connect(saveAction, SIGNAL(triggered(bool)),this, SLOT(on_actionSave_triggered()));
+    connect(saveasAction, SIGNAL(triggered(bool)),this, SLOT(on_actionSaveAs_triggered()));
+    connect(expsvgAction, SIGNAL(triggered(bool)),this, SLOT(on_actionSvg_triggered()));
+    connect(exptexAction, SIGNAL(triggered(bool)),this, SLOT(on_actionTex_triggered()));
+    connect(exampleAction, SIGNAL(triggered(bool)),this, SLOT(on_actionShow_example_triggered()));
+    
+    
 //setupGUI();
 setupGUI(Default, "kartesioui.rc");
     QWidget *widget = new QWidget( this );
@@ -26,13 +76,6 @@ setupGUI(Default, "kartesioui.rc");
 
     plot(uid.tableWidget, "",uid.originalplot->isChecked(),uid.fitplot->isChecked());
 
-    /*KAction* clearAction = new KAction(this);
-    clearAction->setText(i18n("&Clear"));
-    clearAction->setIcon(KIcon("document-new"));
-    clearAction->setShortcut(Qt::CTRL + Qt::Key_N);
-    actionCollection()->addAction("clear", clearAction);*/
-    connect(clearAction, SIGNAL(triggered(bool)),this, SLOT(on_actionShow_example_triggered()));
-    //KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
 
     connect( uid.pushButton, SIGNAL( clicked() ),this, SLOT( on_pushButton_clicked() ) );
     connect( uid.xmin, SIGNAL( valueChanged(double ) ),this, SLOT( on_xmin_valueChanged(double ) ) );
@@ -46,7 +89,7 @@ setupGUI(Default, "kartesioui.rc");
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+    //delete ui;
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -102,7 +145,8 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
         //this procedure is replicated until every point has been used. Then we make the medium between the coefficient values
         //We will use the following command: maxima --batch-string="solve([7=(a*(2^2))+(b*2)+c,13=(a*(3^2))+(b*3)+c,21=(a*(4^2))+(b*4)+c],[a,b,c]);"
 
-        //Try to fill the coeff list with all the coefficients and totalcoeff with the number of coefficients
+        //Try to fill the coeff list with all the coefficients and totalcoeff with the number of coefficients if there is a generic equation
+        if (func->text()=="") return 0;
         QByteArray bat = func->text().toLatin1();
         char *yvalue = bat.data();
         QString tempy;
@@ -160,7 +204,7 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
             }
         }
         cmd = cmd+"]);\" >> \"/tmp/kartesiotmp.txt\"";
-
+	
         //run cmd in a linux command line
         QByteArray banfc = cmd.toLatin1();
         char *tmc = banfc.data();
@@ -181,14 +225,20 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
         //and we must read the values of the coefficients to store them in a list then we create the function
         //replacing the correct coefficient values into the original function written by user
 
+	if (myfunz.indexOf("(%o1)[[")==-1) return 0;
         QString tempstr = myfunz.split("(%o1)[[").at(1);
         QString cancstr = tempstr.replace("]","");
+	if (myfunz.indexOf(",")==-1 and totalcoeff>1) return 0;
         QStringList cmvalue = cancstr.split(",");
 
         //ignore the result if it is not a correct number
         int good = 1;
         for (int u=0; u<totalcoeff; u++){
             for (int n=0; n<cmvalue.count() ; n++){
+	    if (cmvalue.at(n).indexOf("=")==-1) {
+	      break;
+	      good = 0;
+	    }
             QStringList mnval = cmvalue.at(n).split("=");
             QScriptEngine myEnginee;
             QScriptValue isreal = myEnginee.evaluate(mnval.at(1)+"*0");
@@ -197,6 +247,7 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
             if (isreal.toString()!="0") good = 0;
             }
         }
+	
 
         //QString rrf = uid.label->text();
         //uid.label->setText(rrf+"|"+cancstr);
@@ -207,6 +258,7 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
         //myfunz = func->text();
         for (int u=0; u<totalcoeff; u++){
             for (int n=0; n<cmvalue.count() ; n++){
+	      if (cmvalue.at(n).indexOf("=")!=-1) {
                 QStringList mnval = cmvalue.at(n).split("=");
                 if (mnval.at(0)==coeff.at(u)){
                     //now we must sum the new value to the others
@@ -225,6 +277,7 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
                     resfunz = replacevar(tmfnz,newvar, coeff.at(u));
                     tryn++;
                 }
+	    }
         }
         }
         oldcvalue = cmvalue;
@@ -480,4 +533,20 @@ void MainWindow::on_actionShow_example_triggered()
     uid.xmax->setValue(32.00);
     uid.ymin->setValue(6.00);
     uid.ymax->setValue(13.00);
+}
+
+void MainWindow::on_actionOpen_triggered(){
+  //open
+}
+void MainWindow::on_actionSave_triggered(){
+  //save
+}
+void MainWindow::on_actionSaveAs_triggered(){
+  //save as
+}
+void MainWindow::on_actionSvg_triggered(){
+  //save svg
+}
+void MainWindow::on_actionTex_triggered(){
+  //save latex
 }

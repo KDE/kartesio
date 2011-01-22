@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gui name="tutorial3"
+<gui name="kartesio"
      version="1"
      xmlns="http://www.kde.org/standards/kxmlgui/1.0"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -7,14 +7,31 @@
                          http://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd" >
  
   <MenuBar>
-    <Menu name="file" >
+    <Menu name="file" ><text>&amp;File</text>
       <Action name="clear" />
+      <Action name="open" />
+      <Action name="save" />
+      <Action name="saveas" />
+      <Separator />     
+      <Action name="quit"/>
+    </Menu>
+    <Menu name="mplot" ><text>&amp;Plot</text>
+      <Action name="plot" />
+      <Action name="example" />
+      <Action name="expsvg" />
+      <Action name="exptex" />
     </Menu>
   </MenuBar>
  
   <ToolBar name="mainToolBar" >
     <text>Main Toolbar</text>
     <Action name="clear" />
+    <Action name="open" />
+    <Action name="save" />
+    <Separator />     
+    <Action name="plot" />
+    <Action name="expsvg" />
+    <Action name="exptex" />
   </ToolBar>
  
 </gui> 
