@@ -83,6 +83,7 @@ private:
     QString blueplot;
     QStringList oldcvalue;
     QString resfunz;
+    QString file;
     int tryn;
     double xmin;
     double xmax;

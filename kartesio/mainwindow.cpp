@@ -73,6 +73,7 @@ setupGUI(Default, "kartesioui.rc");
     ymin = 0;
     ymax = 50;
     width = int(xmax - xmin);
+    file = "";
 
     plot(uid.tableWidget, "",uid.originalplot->isChecked(),uid.fitplot->isChecked());
 
@@ -95,12 +96,12 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
     //if (uid.function->text()!="") {
-        QString value = calculate(uid.tableWidget,  uid.function);
-        uid.result->setText(value);
+      QString value = calculate(uid.tableWidget,  uid.function);
+      uid.result->setText(value);
+      //for some reason if we call directly the function plot, the program crashes
+      drawpl();
     //}
-    //for some reason if we call directly the function plot, the program crashes
-    drawpl();
-
+    
 }
 
 void MainWindow::drawpl(){
@@ -210,7 +211,9 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
         char *tmc = banfc.data();
         int go = system("rm /tmp/kartesiotmp.txt");
         go = system(tmc);
-
+	// if go is not 0, then it means that maxima died
+	if  (go!=0) QMessageBox::critical(this,"Error","Seems that Maxima process died calculating the result.") ;
+	
         char tmpchr;
         ifstream texto("/tmp/kartesiotmp.txt");
         if (texto) {
@@ -318,7 +321,7 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
             } else {
                 totaldata++;
                 if (original==true) kpob->addPoint(table->item(i,0)->data(Qt::DisplayRole).toDouble(), table->item(i,1)->data(Qt::DisplayRole).toDouble());
-                blueplot = blueplot + " " + QString::number((table->item(i,1)->data(Qt::DisplayRole).toDouble()*10)+5).replace(QString(","), QString(".")) + "," + QString::number((ymax-table->item(i,0)->data(Qt::DisplayRole).toDouble())*10).replace(QString(","), QString("."));
+                blueplot = blueplot + " " + QString::number((table->item(i,0)->data(Qt::DisplayRole).toDouble()*10)+5).replace(QString(","), QString(".")) + "," + QString::number((ymax-table->item(i,1)->data(Qt::DisplayRole).toDouble())*10).replace(QString(","), QString("."));
             }
         }
         //THIS IS THE PLOT OF BEST FIT CURVE
@@ -459,25 +462,25 @@ QString MainWindow::replacevar(char *yvalue, QString dnum, QString var) {
 void MainWindow::on_xmin_valueChanged(double val)
 {
     xmin = val;
-    on_pushButton_clicked();
+    drawpl();
 }
 
 void MainWindow::on_xmax_valueChanged(double val)
 {
     xmax = val;
-    on_pushButton_clicked();
+    drawpl();
 }
 
 void MainWindow::on_ymin_valueChanged(double val)
 {
     ymin = val;
-    on_pushButton_clicked();
+    drawpl();
 }
 
 void MainWindow::on_ymax_valueChanged(double val)
 {
     ymax = val;
-    on_pushButton_clicked();
+    drawpl();
 }
 
 
@@ -499,12 +502,12 @@ void MainWindow::on_actionNew_triggered()
 
 void MainWindow::on_fitplot_stateChanged(int )
 {
-    on_pushButton_clicked();
+    drawpl();
 }
 
 void MainWindow::on_originalplot_stateChanged(int )
 {
-    on_pushButton_clicked();
+    drawpl();
 }
 
 void MainWindow::on_actionShow_example_triggered()
@@ -537,15 +540,128 @@ void MainWindow::on_actionShow_example_triggered()
 
 void MainWindow::on_actionOpen_triggered(){
   //open
+  //loads all the cells text from a file prevoiusly saved
+    file = QFileDialog::getOpenFileName(this,"Open work","","Kartesio File (*.kartesio)");
+    if (file!="") {
+        QByteArray bac = file.toLatin1();
+        char *filec = bac.data();
+        ifstream texto(filec);
+        if (!texto) QMessageBox::critical(this,"Error","Unable to open "+file) ;
+        if (texto) {
+            on_actionNew_triggered();
+            QString tempyval;
+            char tmpchr;
+            int i = 0;
+            QString tempya;
+            int tablea = 0;
+            int xax = 0;
+            do {
+                texto >> tmpchr;
+                if (tmpchr!='|') tempyval = tempyval + tmpchr;
+                if (tmpchr=='|') {
+                    if ((tablea==1) and (tempyval != QString("table1"))  and (tempyval != QString("function"))  ) {
+                        if ((i%2)!=0) {
+                            QTableWidgetItem *titemo = uid.tableWidget->item((i-1)/2,1) ;
+                            if (titemo) titemo->setText(tempyval) ;
+                        } else {
+                            QTableWidgetItem *titem = uid.tableWidget->item((i/2),0) ;
+                            if (titem) titem->setText(tempyval) ;
+                        }
+                        i++;
+                    }
+
+         
+                    if ((xax==1) and (tempyval != QString("table1"))  and (tempyval != QString("function"))  ) {
+                        uid.function->setText(tempyval);
+			xax = 0;
+                    }
+                    
+                    if (tempyval == QString("table1")) {
+                        i=0;
+                        tablea=1;
+                        xax = 0;
+                    }
+                    if (tempyval == QString("function"))  {
+                        tablea=0;
+                        xax = 1;
+                    }
+                    
+                    tempyval = "";
+                }
+            } while (!texto.eof());
+            texto.close();
+        }
+    }
+    
 }
+
 void MainWindow::on_actionSave_triggered(){
-  //save
+  if (file == "") {
+    on_actionSaveAs_triggered();
+    exit;
+  }
+  //save all the cells values
+    
+    QString tempyval;
+    tempyval = "table1|";
+    for (int i=0; i<uid.tableWidget->rowCount() ; i++) {
+        QTableWidgetItem *titem = uid.tableWidget->item(i,0) ;
+        QTableWidgetItem *titemo = uid.tableWidget->item(i,1) ;
+        if (!titem || titem->text().isEmpty()) {
+            break;
+        } else {
+            QString yvaluerq = titemo->data(Qt::DisplayRole).toString() ;
+            QString valuerq = titem->data(Qt::DisplayRole).toString() ;
+            tempyval = tempyval + QString("\n") + valuerq + QString("|\n") + yvaluerq + QString("|");
+        }
+    }
+    tempyval =  tempyval + QString("\nfunction|");
+    tempyval = tempyval + QString("\n") + uid.function->text() + QString("|");
+    
+    tempyval =  tempyval + QString("\nthe end|\n");
+
+    if (file!="") {
+        QByteArray ba = tempyval.toLatin1();
+        char *strsave = ba.data();
+        QByteArray bac = file.toLatin1();
+        char *filec = bac.data();
+
+        ofstream out(filec);
+        /*cout << "|";
+        cout << filec;
+        cout << "|";*/
+        if (!out) QMessageBox::critical(this,"Error","Unable to create "+file) ;
+        out << strsave;
+        out.close();
+        //if(out) QMessageBox::information(this, "Information", "File "+file + " succesfully saved.");
+    }
 }
 void MainWindow::on_actionSaveAs_triggered(){
   //save as
+  file = QFileDialog::getSaveFileName(this,"Save work","","Kartesio File (*.kartesio)");
+  on_actionSave_triggered();
 }
 void MainWindow::on_actionSvg_triggered(){
-  //save svg
+    //This function saves the plot into a SVG file
+    QString svgheader = "<?xml version=\"1.0\" encoding=\"iso-8859-1\" standalone=\"no\"?> <!DOCTYPE svg PUBLIC \"-//W3C//Dtd SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/Dtd/svg11.dtd\"> <svg width=\""+ QString::number((xmax*10)+5)+ "\" height=\""+ QString::number((ymax*10)+5)+ "\"  version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\"><polyline points=\"5," + QString::number(ymax*10) + " " + QString::number((xmax*10)-5) + "," + QString::number(ymax*10) + " " + QString::number((xmax*10)-5) + "," + QString::number((ymax*10)-5) + " " + QString::number(xmax*10) + "," + QString::number(ymax*10) + " " + QString::number((xmax*10)-5) + "," + QString::number((ymax*10)+5) + " " + QString::number((xmax*10)-5) + "," + QString::number(ymax*10) + "\" style=\"stroke:black;fill:none\"/> <polyline points=\"5," + QString::number(ymax*10) + " 5,5 10,5 5,0 0,5 5,5\" style=\"stroke:black;fill:none\"/> ";    
+    //QString svgcomplete = svgheader + greenplot + blueplot + "</svg> ";
+    QString svgcomplete = svgheader ;
+    if (uid.fitplot->isChecked()) svgcomplete = svgcomplete + greenplot ; 
+    if (uid.originalplot->isChecked()) svgcomplete = svgcomplete + blueplot; 
+    svgcomplete = svgcomplete + "</svg> ";
+        
+    QString files = QFileDialog::getSaveFileName(this,"Save plot","","Svg image (*.svg)");
+    if (files!="") {
+      QByteArray svgt = svgcomplete.toLatin1();
+      char *strsave = svgt.data();
+      QByteArray ban = files.toLatin1();
+      char *filec = ban.data();
+      
+      ofstream out(filec);
+      if (!out) QMessageBox::critical(this,"Error","Unable to create "+files) ;
+      out << strsave;
+      out.close();
+    }
 }
 void MainWindow::on_actionTex_triggered(){
   //save latex
