@@ -60,8 +60,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(exampleAction, SIGNAL(triggered(bool)),this, SLOT(on_actionShow_example_triggered()));
     
     
-//setupGUI();
-setupGUI(Default, "kartesioui.rc");
+
+    setupGUI(Default, "kartesioui.rc");
     QWidget *widget = new QWidget( this );
 
     // create the user interface, the parent widget is "widget"
@@ -116,7 +116,6 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
     width = int(xmax - xmin);
     int totalcoeff=0;
     QStringList coeff;
-    //uid.label->setText("");
     QString myfunz;
     //uid.tableWidget->sortItems(1, Qt::AscendingOrder); //seems that the sorting doesn't work correctly
     if (!table->item(0,0) || table->item(0,0)->text().isEmpty())
@@ -169,11 +168,10 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
 
         tryn = 0;
         //run the procedure until every point has been used
-        for (int f=0; f<(totaldata-totalcoeff+2);f++) {
+	for (int f=0; f<(totaldata);f++) {
         //we try to prepare the command line for maxima
         QString cmd = "maxima --batch-string=\"solve([";
         int fir = 1;
-        //tryn = f;
         int i = f;
             //now i'm using the value of the points to fit the curve
             //REMEMBER that coeff.at(u) is the actual coefficient px[i] and py[i] are the x,y values of the point used
@@ -181,11 +179,11 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
                 QByteArray banf = func->text().toLatin1();
                 char *tmfn = banf.data();
                 QString xtmp;
-                xtmp.setNum(px[i]);
+                xtmp.setNum(px[i%totalcoeff]);
                 QString eqa = replacevar(tmfn,xtmp,QString("x"));
                 QByteArray banfn = eqa.toLatin1();
                 char *tmfns = banfn.data();
-                xtmp.setNum(py[i]);
+                xtmp.setNum(py[i%totalcoeff]);
                 QString eq = replacevar(tmfns,xtmp,QString("y"));
                 if (fir==0) cmd = cmd + ","+ eq;
                 if (fir==1) {
@@ -245,20 +243,14 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
             QStringList mnval = cmvalue.at(n).split("=");
             QScriptEngine myEnginee;
             QScriptValue isreal = myEnginee.evaluate(mnval.at(1)+"*0");
-            //QString eef = uid.label_2->text();
-            //uid.label_2->setText(eef + "|" + isreal.toString());
             if (isreal.toString()!="0") good = 0;
             }
         }
 	
 
-        //QString rrf = uid.label->text();
-        //uid.label->setText(rrf+"|"+cancstr);
-
         myfunz = func->text();
-        //resfunz = myfunz;
+
         if (good == 1){
-        //myfunz = func->text();
         for (int u=0; u<totalcoeff; u++){
             for (int n=0; n<cmvalue.count() ; n++){
 	      if (cmvalue.at(n).indexOf("=")!=-1) {
@@ -266,7 +258,6 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
                 if (mnval.at(0)==coeff.at(u)){
                     //now we must sum the new value to the others
                     QString newvar = mnval.at(1);
-                    //if (f==1 or tryn == 0) resfunz = myfunz;
                     if (resfunz=="") resfunz = myfunz;
                     if (f!=0 and tryn!=0) {  //remember that f begins with 0
                         QStringList mnvalo = oldcvalue.at(n).split("=");
@@ -299,12 +290,13 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
     uid.kplotwidget->removeAllPlotObjects();
     uid.kplotwidget->setLimits( xmin, xmax, ymin, ymax ); //now I need to set the limits of the plot
 
-    KPlotObject *kpor = new KPlotObject( Qt::red, KPlotObject::Lines );
     KPlotObject *kpog = new KPlotObject( Qt::green, KPlotObject::Lines );
     KPlotObject *kpob = new KPlotObject( Qt::blue, KPlotObject::Lines );
-    redplot = "<polyline points=\"";
+
     greenplot = "<polyline points=\"";
     blueplot = "<polyline points=\"";
+    greenplottex = "\\psline[linecolor=green, showpoints=false]";
+    blueplottex = "\\psline[linecolor=blue, showpoints=true]";
 
     //uid.tableWidget->sortItems(1, Qt::AscendingOrder); //seems that the sorting doesn't work correctly
     if (!table->item(0,0) || table->item(0,0)->text().isEmpty())
@@ -322,6 +314,7 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
                 totaldata++;
                 if (original==true) kpob->addPoint(table->item(i,0)->data(Qt::DisplayRole).toDouble(), table->item(i,1)->data(Qt::DisplayRole).toDouble());
                 blueplot = blueplot + " " + QString::number((table->item(i,0)->data(Qt::DisplayRole).toDouble()*10)+5).replace(QString(","), QString(".")) + "," + QString::number((ymax-table->item(i,1)->data(Qt::DisplayRole).toDouble())*10).replace(QString(","), QString("."));
+		blueplottex = blueplottex + "(" + QString::number((table->item(i,0)->data(Qt::DisplayRole).toDouble())).replace(QString(","), QString(".")) + "," + QString::number((table->item(i,1)->data(Qt::DisplayRole).toDouble())).replace(QString(","), QString("."))+")";
             }
         }
         //THIS IS THE PLOT OF BEST FIT CURVE
@@ -342,15 +335,14 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
             double tvalue = three.toNumber();
             if (funz==true) kpog->addPoint(id, tvalue);
             greenplot = greenplot + " " + QString::number((id*10)+5).replace(QString(","), QString(".")) + "," + QString::number((ymax-tvalue)*10).replace(QString(","), QString("."));
+	    greenplottex = greenplottex + "(" + QString::number(id).replace(QString(","), QString(".")) + "," + QString::number((tvalue)).replace(QString(","), QString("."))+")";
 
         }
     } //here ends the experimental values mode
 
-    uid.kplotwidget->addPlotObject(kpor);
     uid.kplotwidget->addPlotObject(kpog);
     uid.kplotwidget->addPlotObject(kpob);
 
-    redplot = redplot + "\" style=\"stroke:red;fill:none\"/> ";
     blueplot = blueplot + "\" style=\"stroke:blue;fill:none\"/> ";
     greenplot = greenplot + "\" style=\"stroke:green;fill:none\"/> ";
 
@@ -423,7 +415,6 @@ QString MainWindow::solvex(char *yvalue, QString dnum) {
         if (tempyval!="") mreport = tempyval;
     }
     }
-    //QMessageBox::information(this,"report",mreport);
     return mreport;
 }
 
@@ -454,7 +445,6 @@ QString MainWindow::replacevar(char *yvalue, QString dnum, QString var) {
 
         if (tempyval!="") mreport = tempyval;
     }
-    //QMessageBox::information(this,"report",mreport);
     return mreport;
 }
 
@@ -497,6 +487,10 @@ void MainWindow::on_actionNew_triggered()
     }
     uid.function->setText("") ;
     uid.result->setText("") ;
+    uid.xmin->setValue(0.00);
+    uid.xmax->setValue(50.00);
+    uid.ymin->setValue(0.00);
+    uid.ymax->setValue(50.00);
     plot(uid.tableWidget, "",uid.originalplot->isChecked(),uid.fitplot->isChecked());
 }
 
@@ -531,7 +525,8 @@ void MainWindow::on_actionShow_example_triggered()
     titemo = uid.tableWidget->item(3,1);
     titemo->setText("31,5");
 
-    uid.function->setText("y=(a*(x^3))+(b*(x^2))+(c*x)+d");
+    //uid.function->setText("y=(a*(x^3))+(b*(x^2))+(c*x)+d");
+    uid.function->setText("y=(a*(tanh(b*(x+c))))+d");
     uid.xmin->setValue(30.00);
     uid.xmax->setValue(32.00);
     uid.ymin->setValue(6.00);
@@ -539,9 +534,18 @@ void MainWindow::on_actionShow_example_triggered()
 }
 
 void MainWindow::on_actionOpen_triggered(){
-  //open
+  file = QFileDialog::getOpenFileName(this,"Open work","","Kartesio File (*.kartesio)");
+  Openfile();
+}
+
+void MainWindow::Openarg(QString filename){
+  //remove the first 7 characters
+  file = filename.remove(0,7);
+  Openfile();
+}
+
+void MainWindow::Openfile(){
   //loads all the cells text from a file prevoiusly saved
-    file = QFileDialog::getOpenFileName(this,"Open work","","Kartesio File (*.kartesio)");
     if (file!="") {
         QByteArray bac = file.toLatin1();
         char *filec = bac.data();
@@ -627,13 +631,9 @@ void MainWindow::on_actionSave_triggered(){
         char *filec = bac.data();
 
         ofstream out(filec);
-        /*cout << "|";
-        cout << filec;
-        cout << "|";*/
         if (!out) QMessageBox::critical(this,"Error","Unable to create "+file) ;
         out << strsave;
         out.close();
-        //if(out) QMessageBox::information(this, "Information", "File "+file + " succesfully saved.");
     }
 }
 void MainWindow::on_actionSaveAs_triggered(){
@@ -644,7 +644,6 @@ void MainWindow::on_actionSaveAs_triggered(){
 void MainWindow::on_actionSvg_triggered(){
     //This function saves the plot into a SVG file
     QString svgheader = "<?xml version=\"1.0\" encoding=\"iso-8859-1\" standalone=\"no\"?> <!DOCTYPE svg PUBLIC \"-//W3C//Dtd SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/Dtd/svg11.dtd\"> <svg width=\""+ QString::number((xmax*10)+5)+ "\" height=\""+ QString::number((ymax*10)+5)+ "\"  version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\"><polyline points=\"5," + QString::number(ymax*10) + " " + QString::number((xmax*10)-5) + "," + QString::number(ymax*10) + " " + QString::number((xmax*10)-5) + "," + QString::number((ymax*10)-5) + " " + QString::number(xmax*10) + "," + QString::number(ymax*10) + " " + QString::number((xmax*10)-5) + "," + QString::number((ymax*10)+5) + " " + QString::number((xmax*10)-5) + "," + QString::number(ymax*10) + "\" style=\"stroke:black;fill:none\"/> <polyline points=\"5," + QString::number(ymax*10) + " 5,5 10,5 5,0 0,5 5,5\" style=\"stroke:black;fill:none\"/> ";    
-    //QString svgcomplete = svgheader + greenplot + blueplot + "</svg> ";
     QString svgcomplete = svgheader ;
     if (uid.fitplot->isChecked()) svgcomplete = svgcomplete + greenplot ; 
     if (uid.originalplot->isChecked()) svgcomplete = svgcomplete + blueplot; 
@@ -664,5 +663,26 @@ void MainWindow::on_actionSvg_triggered(){
     }
 }
 void MainWindow::on_actionTex_triggered(){
-  //save latex
+  //save as latex
+  
+    QString texheader = "\\documentclass[a4paper,12pt]{article}\n \\usepackage{pst-plot}\n \\begin{document} \n \\psset{xunit=1mm,yunit=1mm} %you can make the plot bigger changing xunit and yunit value";    
+    QString texcomplete = texheader ;
+    if (uid.fitplot->isChecked()) texcomplete = texcomplete + "\n" + greenplottex ; 
+    if (uid.originalplot->isChecked()) texcomplete = texcomplete + "\n" + blueplottex; 
+    texcomplete = texcomplete + QString(" \n \\[ ") + uid.result->text() + QString(" \\] \n \\end{document} ");
+        
+    QString files = QFileDialog::getSaveFileName(this,"Save plot","","Latex document (*.tex)");
+    if (files!="") {
+      QByteArray tex = texcomplete.toLatin1();
+      char *strsave = tex.data();
+      QByteArray ban = files.toLatin1();
+      char *filec = ban.data();
+      
+      ofstream out(filec);
+      if (!out) QMessageBox::critical(this,"Error","Unable to create "+files) ;
+      out << strsave;
+      out.close();
+      if (out) QMessageBox::information(this,"Well done","Please take note that you can't use pdflatex to convert this file directly into a pdf file. You can convert it only into dvi,and then will be possible to create a pdf.") ;
+    }
+  
 }

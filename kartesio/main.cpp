@@ -4,6 +4,7 @@
 #include <kcmdlineargs.h>
 #include <klocale.h>
 #include <kapplication.h>
+#include <KUrl> 
 
 #include "mainwindow.h"
 
@@ -23,15 +24,21 @@ int main(int argc, char *argv[])
     //about.addCredit(ki18n("your name here"),ki18n("What you have done"));
 
     KCmdLineArgs::init(argc, argv, &about);
+    
+    KCmdLineOptions options; //new
+    options.add("+[file]", ki18n("Document to open")); //new
+    KCmdLineArgs::addCmdLineOptions(options); //new
+    
     KApplication a;
-    //Kartesio *mainWin = 0;
-    //mainWin = new Kalzium();
-    //mainWin->show();
-    //QApplication a(argc, argv);
-    //MainWindow w;
+
     MainWindow* w = new MainWindow();
     w->show();
-    //w.show();
 
+    KCmdLineArgs *args = KCmdLineArgs::parsedArgs(); //new
+    if(args->count()) //new
+    {
+      w->Openarg(args->url(0).url()); //new
+    }
+    
     return a.exec();
 }

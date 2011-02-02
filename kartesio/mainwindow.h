@@ -50,6 +50,7 @@ class MainWindow : public KXmlGuiWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void Openarg(QString filename);
 
 private slots:
     void on_pushButton_clicked();
@@ -69,8 +70,6 @@ private slots:
     void on_actionTex_triggered();
 
 private:
-    //Ui::MainWindow *ui;
-    //Ui::MainWindow ui;
     Ui::centralWidget uid;
     Ui::centralWidget *ui;
     QString calculate(QTableWidget *table,  QLineEdit *func);
@@ -78,9 +77,11 @@ private:
     QString replacevar(char *yvalue, QString dnum, QString var);
     void drawpl();
     void plot(QTableWidget *table, QString function, bool original, bool funz);
-    QString redplot;
+    void Openfile();
     QString greenplot;
     QString blueplot;
+    QString greenplottex;
+    QString blueplottex;
     QStringList oldcvalue;
     QString resfunz;
     QString file;
