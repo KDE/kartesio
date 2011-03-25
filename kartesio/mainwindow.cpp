@@ -49,6 +49,12 @@ MainWindow::MainWindow(QWidget *parent)
     exptexAction->setText(i18n("Export as Latex"));
     exptexAction->setIcon(KIcon("text-x-tex"));
     actionCollection()->addAction("exptex", exptexAction);
+    
+    KAction*reportAction = new KAction(this);
+    reportAction->setText(i18n("Read Maxima Report"));
+    reportAction->setIcon(KIcon("kate"));
+    actionCollection()->addAction("report", reportAction);
+
 
     connect(clearAction, SIGNAL(triggered(bool)),this, SLOT(on_actionNew_triggered()));
     connect(plotAction, SIGNAL(triggered(bool)),this, SLOT(on_pushButton_clicked()));
@@ -58,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(expsvgAction, SIGNAL(triggered(bool)),this, SLOT(on_actionSvg_triggered()));
     connect(exptexAction, SIGNAL(triggered(bool)),this, SLOT(on_actionTex_triggered()));
     connect(exampleAction, SIGNAL(triggered(bool)),this, SLOT(on_actionShow_example_triggered()));
+    connect(reportAction, SIGNAL(triggered(bool)),this, SLOT(on_actionReport_triggered()));
     
     
 
@@ -110,9 +117,14 @@ void MainWindow::drawpl(){
     plot(uid.tableWidget, tempstr,uid.originalplot->isChecked(),uid.fitplot->isChecked());
 }
 
+void MainWindow::on_actionReport_triggered(){
+  QMessageBox::information(this,"Maxima Report",myrep);
+}
+
 QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
     //this function calculates the best fit curve from some points and a generic function
     resfunz = "";
+    myrep="Values obtained by maxima:\n";
     width = int(xmax - xmin);
     int totalcoeff=0;
     QStringList coeff;
@@ -170,7 +182,7 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
         //run the procedure until every point has been used
 	for (int f=0; f<(totaldata);f++) {
         //we try to prepare the command line for maxima
-        QString cmd = "maxima --batch-string=\"solve([";
+        QString cmd = "maxima --batch-string=\"numer:true;solve([";
         int fir = 1;
         int i = f;
             //now i'm using the value of the points to fit the curve
@@ -179,11 +191,11 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
                 QByteArray banf = func->text().toLatin1();
                 char *tmfn = banf.data();
                 QString xtmp;
-                xtmp.setNum(px[i%totalcoeff]);
+                xtmp.setNum(px[i%totalcoeff]).replace(QString(","), QString("."));
                 QString eqa = replacevar(tmfn,xtmp,QString("x"));
                 QByteArray banfn = eqa.toLatin1();
                 char *tmfns = banfn.data();
-                xtmp.setNum(py[i%totalcoeff]);
+                xtmp.setNum(py[i%totalcoeff]).replace(QString(","), QString("."));
                 QString eq = replacevar(tmfns,xtmp,QString("y"));
                 if (fir==0) cmd = cmd + ","+ eq;
                 if (fir==1) {
@@ -203,7 +215,7 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
             }
         }
         cmd = cmd+"]);\" >> \"/tmp/kartesiotmp.txt\"";
-	
+
         //run cmd in a linux command line
         QByteArray banfc = cmd.toLatin1();
         char *tmc = banfc.data();
@@ -222,16 +234,19 @@ QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
         }
         texto.close();
 
-        //now we have a string like this "...solve([1=a3+b3+c,2=a4+b4+c,3=a5+b5+c],[a,b,c])(%o1)[[a=0,b=1,c=-2]]]"
+        //now we have a string like this "...solve([1=a3+b3+c,2=a4+b4+c,3=a5+b5+c],[a,b,c])(%o2)[[a=0,b=1,c=-2]]]"
         //and we must read the values of the coefficients to store them in a list then we create the function
         //replacing the correct coefficient values into the original function written by user
 
-	if (myfunz.indexOf("(%o1)[[")==-1) return 0;
-        QString tempstr = myfunz.split("(%o1)[[").at(1);
-        QString cancstr = tempstr.replace("]","");
+	if (myfunz.indexOf("(%o2)")==-1) return 0;
+        QString tempstr = myfunz.split("(%o2)").at(1);
+	//we must delete [ and ]
+	//QString cancstr = tempstr.replace(" ","");
+        QString cancstr = tempstr.replace("[","");
+        cancstr = cancstr.replace("]","");
 	if (myfunz.indexOf(",")==-1 and totalcoeff>1) return 0;
         QStringList cmvalue = cancstr.split(",");
-
+	myrep = myrep + cancstr+ "\n";
         //ignore the result if it is not a correct number
         int good = 1;
         for (int u=0; u<totalcoeff; u++){
@@ -330,7 +345,8 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
             //now i'm using QScript language to solve the expression
             //in a future we can consider to change it supporting some backends, but it's really complex
             QString myscript = solvex(tmreporto,istr); //myscript is the equation converted in QScript language and with the value of x axis (istr) instead of "x" variable
-            QScriptValue three = myEngine.evaluate(myscript);
+            //QString myscript = replacevar(tmreporto,istr, "x"); //myscript is the equation converted in QScript language and with the value of x axis (istr) instead of "x" variable
+	    QScriptValue three = myEngine.evaluate(myscript);
 
             double tvalue = three.toNumber();
             if (funz==true) kpog->addPoint(id, tvalue);

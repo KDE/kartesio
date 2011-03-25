@@ -64,6 +64,7 @@ private slots:
     void on_originalplot_stateChanged(int );
     void on_actionShow_example_triggered();
     void on_actionOpen_triggered();
+    void on_actionReport_triggered();
     void on_actionSave_triggered();
     void on_actionSaveAs_triggered();
     void on_actionSvg_triggered();
@@ -91,6 +92,7 @@ private:
     double ymin;
     double ymax;
     int width;
+    QString myrep;
 };
 
 #endif // MAINWINDOW_H

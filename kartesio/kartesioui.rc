@@ -20,6 +20,8 @@
       <Action name="example" />
       <Action name="expsvg" />
       <Action name="exptex" />
+      <Separator /> 
+      <Action name="report" />
     </Menu>
   </MenuBar>
  
