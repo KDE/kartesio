@@ -508,6 +508,7 @@ void MainWindow::on_actionNew_triggered()
     uid.ymin->setValue(0.00);
     uid.ymax->setValue(50.00);
     plot(uid.tableWidget, "",uid.originalplot->isChecked(),uid.fitplot->isChecked());
+    setCaption("");
 }
 
 void MainWindow::on_fitplot_stateChanged(int )
@@ -525,28 +526,24 @@ void MainWindow::on_actionShow_example_triggered()
     on_actionNew_triggered();
     QTableWidgetItem *titemo = uid.tableWidget->item(0,0);
     titemo = uid.tableWidget->item(0,0);
-    titemo->setText("7,19");
+    titemo->setText("0");
     titemo = uid.tableWidget->item(0,1);
-    titemo->setText("30");
+    titemo->setText("0");
     titemo = uid.tableWidget->item(1,0);
-    titemo->setText("7,64");
+    titemo->setText("1.7");
     titemo = uid.tableWidget->item(1,1);
-    titemo->setText("30,5");
+    titemo->setText("4");
     titemo = uid.tableWidget->item(2,0);
-    titemo->setText("10,02");
+    titemo->setText("3.14");
     titemo = uid.tableWidget->item(2,1);
-    titemo->setText("31");
-    titemo = uid.tableWidget->item(3,0);
-    titemo->setText("10,45");
-    titemo = uid.tableWidget->item(3,1);
-    titemo->setText("31,5");
-
+    titemo->setText("1");
+    
     //uid.function->setText("y=(a*(x^3))+(b*(x^2))+(c*x)+d");
-    uid.function->setText("y=(a*(tanh(b*(x+c))))+d");
-    uid.xmin->setValue(30.00);
-    uid.xmax->setValue(32.00);
-    uid.ymin->setValue(6.00);
-    uid.ymax->setValue(13.00);
+    uid.function->setText("y=a*sin(x)+b");
+    uid.xmin->setValue(0.00);
+    uid.xmax->setValue(4.00);
+    uid.ymin->setValue(0.00);
+    uid.ymax->setValue(5.00);
 }
 
 void MainWindow::on_actionOpen_triggered(){
@@ -563,6 +560,7 @@ void MainWindow::Openarg(QString filename){
 void MainWindow::Openfile(){
   //loads all the cells text from a file prevoiusly saved
     if (file!="") {
+      setCaption(file); //for some reason I don't get, this method doesn't work
         QByteArray bac = file.toLatin1();
         char *filec = bac.data();
         ifstream texto(filec);
@@ -655,6 +653,7 @@ void MainWindow::on_actionSave_triggered(){
 void MainWindow::on_actionSaveAs_triggered(){
   //save as
   file = QFileDialog::getSaveFileName(this,"Save work","","Kartesio File (*.kartesio)");
+  setCaption(file);
   on_actionSave_triggered();
 }
 void MainWindow::on_actionSvg_triggered(){
