@@ -10,6 +10,7 @@ INCLUDE( ${QT_USE_FILE} )
 set(kartesio_SRCS 
   main.cpp
   mainwindow.cpp
+  calculations.cpp
 )
 
 SET(kartesio_MOC_HDRS mainwindow.h)

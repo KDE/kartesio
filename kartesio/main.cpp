@@ -4,7 +4,7 @@
 #include <kcmdlineargs.h>
 #include <klocale.h>
 #include <kapplication.h>
-#include <KUrl> 
+#include <KUrl>
 
 #include "mainwindow.h"
 
@@ -24,21 +24,21 @@ int main(int argc, char *argv[])
     //about.addCredit(ki18n("your name here"),ki18n("What you have done"));
 
     KCmdLineArgs::init(argc, argv, &about);
-    
-    KCmdLineOptions options; //new
-    options.add("+[file]", ki18n("Document to open")); //new
-    KCmdLineArgs::addCmdLineOptions(options); //new
-    
+
+    KCmdLineOptions options;
+    options.add("+[file]", ki18n("Document to open"));
+    KCmdLineArgs::addCmdLineOptions(options);
+
     KApplication a;
 
-    MainWindow* w = new MainWindow();
+    MainWindow *w = new MainWindow();
     w->show();
 
-    KCmdLineArgs *args = KCmdLineArgs::parsedArgs(); //new
-    if(args->count()) //new
+    KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
+    if (args->count())
     {
-      w->Openarg(args->url(0).url()); //new
+        w->Openarg(args->url(0).url());
     }
-    
+
     return a.exec();
 }

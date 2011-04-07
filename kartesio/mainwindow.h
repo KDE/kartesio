@@ -2,44 +2,7 @@
 #define MAINWINDOW_H
 
 #include "ui_mainwindow.h"
-
-#include <QMainWindow>
-#include "QTableWidget"
-#include "QLineEdit"
-#include "QString"
-#include "QStringList"
-#include <math.h>
-#include <iostream>
-#include <fstream>
-#include <cstring>
-#include <cctype>
-#include <cstdlib>
-#include <cmath>
-#include <stdio.h>
-#include <QFileDialog>
-#include <QScriptEngine>
-#include <QScriptValue>
-#include <QScriptClass>
-#include <QVarLengthArray>
-#include <stdlib.h>
-#include <math.h>
-#include <float.h>
-#include <QMessageBox>
-#include <QTableWidget>
-#include <QTableWidgetItem>
-
-#include "kplotwidget.h"
-#include "kplotaxis.h"
-#include "kplotobject.h"
-#include "kplotpoint.h"
-#include <kdebug.h>
-#include "kaction.h"
-#include "klocale.h"
-#include "kactioncollection.h"
-#include "kstandardaction.h"
-#include "kapplication.h"
-
-#include "kxmlguiwindow.h"
+#include "calculations.h"
 
 using namespace std;
 
@@ -73,26 +36,14 @@ private slots:
 private:
     Ui::centralWidget uid;
     Ui::centralWidget *ui;
-    QString calculate(QTableWidget *table,  QLineEdit *func);
-    QString solvex(char *yvalue, QString dnum);
-    QString replacevar(char *yvalue, QString dnum, QString var);
+
     void drawpl();
     void plot(QTableWidget *table, QString function, bool original, bool funz);
     void Openfile();
-    QString greenplot;
-    QString blueplot;
-    QString greenplottex;
-    QString blueplottex;
-    QStringList oldcvalue;
-    QString resfunz;
-    QString file;
-    int tryn;
-    double xmin;
-    double xmax;
-    double ymin;
-    double ymax;
-    int width;
-    QString myrep;
+    //Calculations *mycalcs ;
+    Calculations mycalcs ;
+
+
 };
 
 #endif // MAINWINDOW_H

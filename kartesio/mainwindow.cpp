@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : KXmlGuiWindow(parent)
+        : KXmlGuiWindow(parent)
 {
 
     KAction* clearAction = new KAction(this);
@@ -9,47 +9,47 @@ MainWindow::MainWindow(QWidget *parent)
     clearAction->setIcon(KIcon("document-new"));
     clearAction->setShortcut(Qt::CTRL + Qt::Key_N);
     actionCollection()->addAction("clear", clearAction);
-    
+
     KAction* openAction = new KAction(this);
     openAction->setText(i18n("&Open"));
     openAction->setIcon(KIcon("document-open"));
     openAction->setShortcut(Qt::CTRL + Qt::Key_O);
     actionCollection()->addAction("open", openAction);
-    
+
     KAction* saveAction = new KAction(this);
     saveAction->setText(i18n("&Save"));
     saveAction->setIcon(KIcon("document-save"));
     saveAction->setShortcut(Qt::CTRL + Qt::Key_S);
     actionCollection()->addAction("save", saveAction);
-    
+
     KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
-    
+
     KAction* saveasAction = new KAction(this);
     saveasAction->setText(i18n("&Save as"));
     saveasAction->setIcon(KIcon("document-save"));
     actionCollection()->addAction("saveas", saveasAction);
-    
+
     KAction* plotAction = new KAction(this);
     plotAction->setText(i18n("Draw &Plot"));
     plotAction->setIcon(KIcon("kmplot"));
     plotAction->setShortcut(Qt::CTRL + Qt::Key_P);
     actionCollection()->addAction("plot", plotAction);
-    
+
     KAction* exampleAction = new KAction(this);
     exampleAction->setText(i18n("Show &Example"));
     exampleAction->setShortcut(Qt::CTRL + Qt::Key_E);
     actionCollection()->addAction("example", exampleAction);
-    
+
     KAction*expsvgAction = new KAction(this);
     expsvgAction->setText(i18n("Export as SVG"));
     expsvgAction->setIcon(KIcon("image-svg+xml"));
     actionCollection()->addAction("expsvg", expsvgAction);
-    
+
     KAction*exptexAction = new KAction(this);
     exptexAction->setText(i18n("Export as Latex"));
     exptexAction->setIcon(KIcon("text-x-tex"));
     actionCollection()->addAction("exptex", exptexAction);
-    
+
     KAction*reportAction = new KAction(this);
     reportAction->setText(i18n("Read Maxima Report"));
     reportAction->setIcon(KIcon("kate"));
@@ -65,8 +65,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(exptexAction, SIGNAL(triggered(bool)),this, SLOT(on_actionTex_triggered()));
     connect(exampleAction, SIGNAL(triggered(bool)),this, SLOT(on_actionShow_example_triggered()));
     connect(reportAction, SIGNAL(triggered(bool)),this, SLOT(on_actionReport_triggered()));
-    
-    
+
+
 
     setupGUI(Default, "kartesioui.rc");
     QWidget *widget = new QWidget( this );
@@ -75,12 +75,13 @@ MainWindow::MainWindow(QWidget *parent)
     uid.setupUi(widget);
     setCentralWidget(widget);
 
-    xmin = 0;
-    xmax = 50;
-    ymin = 0;
-    ymax = 50;
-    width = int(xmax - xmin);
-    file = "";
+
+    mycalcs.m_xmin = 0;
+    mycalcs.m_xmax = 50;
+    mycalcs.m_ymin = 0;
+    mycalcs.m_ymax = 50;
+    mycalcs.m_width = int(mycalcs.m_xmax - mycalcs.m_xmin);
+    mycalcs.m_file = "";
 
     plot(uid.tableWidget, "",uid.originalplot->isChecked(),uid.fitplot->isChecked());
 
@@ -98,220 +99,48 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     //delete ui;
+    //delete mycalcs;
 }
 
 void MainWindow::on_pushButton_clicked()
 {
     //if (uid.function->text()!="") {
-      QString value = calculate(uid.tableWidget,  uid.function);
-      uid.result->setText(value);
-      //for some reason if we call directly the function plot, the program crashes
-      drawpl();
+    QString value = mycalcs.calculate(uid.tableWidget,  uid.function);
+    if  (value==QString("died")) QMessageBox::critical(this,"Error","Seems that Maxima process died calculating the result.") ;
+    if  (value!=QString("died")) {
+        uid.result->setText(value);
+        //for some reason if we call directly the function plot, the program crashes, so we need to use the function drawpl
+        drawpl();
+    }
     //}
-    
+
 }
 
-void MainWindow::drawpl(){
+void MainWindow::drawpl() {
     QString tempstr = "";
     if (uid.result->text()!="") tempstr = uid.result->text().split("=").at(1);
     plot(uid.tableWidget, tempstr,uid.originalplot->isChecked(),uid.fitplot->isChecked());
 }
 
-void MainWindow::on_actionReport_triggered(){
-  QMessageBox::information(this,"Maxima Report",myrep);
+void MainWindow::on_actionReport_triggered() {
+    QMessageBox::information(this,"Maxima Report",mycalcs.m_myReport);
 }
 
-QString MainWindow::calculate(QTableWidget *table,  QLineEdit *func){
-    //this function calculates the best fit curve from some points and a generic function
-    resfunz = "";
-    myrep="Values obtained by maxima:\n";
-    width = int(xmax - xmin);
-    int totalcoeff=0;
-    QStringList coeff;
-    QString myfunz;
-    //uid.tableWidget->sortItems(1, Qt::AscendingOrder); //seems that the sorting doesn't work correctly
-    if (!table->item(0,0) || table->item(0,0)->text().isEmpty())
-    {
-        //go on
-    } else {
-        //now we can plot the values
-        QVarLengthArray<double, 64> px(table->rowCount());
-        QVarLengthArray<double, 64> py(table->rowCount());
-        int totaldata=0;
-        for (int i=0; i<table->rowCount() ; i++) {
-            if (!table->item(i,0) || table->item(i,0)->text().isEmpty()) {
-                break;
-            } else {
-                totaldata++;
-                py[i] = table->item(i,1)->data(Qt::DisplayRole).toDouble();
-                px[i] = table->item(i,0)->data(Qt::DisplayRole).toDouble();
-            }
-        }
-        //now in the arrays px and py are stored the values of the points
-        //we need to read the function and find a way to invert it
-
-        //first of all we need to create an array of the coefficients
-        //then, for every coefficient (e.g.: "a") we force the passage for one point
-        //then we must solve the system
-        //example of a correct system: solve([7=(a*(2^2))+(b*2)+c,13=(a*(3^2))+(b*3)+c,21=(a*(4^2))+(b*4)+c],[a,b,c]);
-        //this procedure is replicated until every point has been used. Then we make the medium between the coefficient values
-        //We will use the following command: maxima --batch-string="solve([7=(a*(2^2))+(b*2)+c,13=(a*(3^2))+(b*3)+c,21=(a*(4^2))+(b*4)+c],[a,b,c]);"
-
-        //Try to fill the coeff list with all the coefficients and totalcoeff with the number of coefficients if there is a generic equation
-        if (func->text()=="") return 0;
-        QByteArray bat = func->text().toLatin1();
-        char *yvalue = bat.data();
-        QString tempy;
-        QString tempyn = "";
-        tempy = "";
-        for (int i=0; strlen(yvalue)+1;i++) {
-            if (!(yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==','or yvalue[i]=='=')) break; //if current value is not a permitted value, this means that something is wrong
-            if (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M') tempyn = tempyn + yvalue[i]; // every letter will be added in the variable tempyn so we can study it
-            tempy = "";
-            if  (yvalue[i]=='=' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',' ) tempyn = "";
-            //use the correct functions
-            if (!(tempyn=="" or tempyn=="cos" or tempyn=="sin" or tempyn=="y" or tempyn=="x" or tempyn=="tan" or tempyn=="cot" or tempyn=="exp" or tempyn=="abs" or tempyn=="acos" or tempyn=="atan" or tempyn=="atan2" or tempyn=="asin" or tempyn=="ceil" or tempyn=="floor" or tempyn=="log" or tempyn=="ln" or tempyn=="max" or tempyn=="min" or tempyn=="random" or tempyn=="round" or tempyn=="sqrt")) {
-                if  ((yvalue[i+1]=='+' or yvalue[i+1]=='=' or yvalue[i+1]=='-' or yvalue[i+1]=='*' or yvalue[i+1]=='^' or yvalue[i+1]=='/' or yvalue[i+1]=='(' or yvalue[i+1]==')' or yvalue[i+1]=='1' or yvalue[i+1]=='2' or yvalue[i+1]=='3' or yvalue[i+1]=='4' or yvalue[i+1]=='5' or yvalue[i+1]=='6' or yvalue[i+1]=='7' or yvalue[i+1]=='8' or yvalue[i+1]=='9' or yvalue[i+1]=='0' or yvalue[i+1]=='.' or yvalue[i+1]==' ' or yvalue[i+1]==',' or yvalue[i+1]=='=' or (i+1)==(strlen(yvalue))) ) {
-                    coeff.append(tempyn);
-                    totalcoeff++;
-                }
-            }
-        }
-
-        tryn = 0;
-        //run the procedure until every point has been used
-	for (int f=0; f<(totaldata);f++) {
-        //we try to prepare the command line for maxima
-        QString cmd = "maxima --batch-string=\"numer:true;solve([";
-        int fir = 1;
-        int i = f;
-            //now i'm using the value of the points to fit the curve
-            //REMEMBER that coeff.at(u) is the actual coefficient px[i] and py[i] are the x,y values of the point used
-            for (int u=0; u<totalcoeff; u++){
-                QByteArray banf = func->text().toLatin1();
-                char *tmfn = banf.data();
-                QString xtmp;
-                xtmp.setNum(px[i%totalcoeff]).replace(QString(","), QString("."));
-                QString eqa = replacevar(tmfn,xtmp,QString("x"));
-                QByteArray banfn = eqa.toLatin1();
-                char *tmfns = banfn.data();
-                xtmp.setNum(py[i%totalcoeff]).replace(QString(","), QString("."));
-                QString eq = replacevar(tmfns,xtmp,QString("y"));
-                if (fir==0) cmd = cmd + ","+ eq;
-                if (fir==1) {
-                    cmd = cmd + eq;
-                    fir = 0;
-                }
-                i++;
-            }
-
-        cmd = cmd+"],[";
-        fir= 1;
-        for (int u=0; u<totalcoeff; u++){
-            if (fir==0) cmd = cmd + ","+coeff.at(u);
-            if (fir==1) {
-                cmd = cmd + coeff.at(u);
-                fir = 0;
-            }
-        }
-        cmd = cmd+"]);\" >> \"/tmp/kartesiotmp.txt\"";
-
-        //run cmd in a linux command line
-        QByteArray banfc = cmd.toLatin1();
-        char *tmc = banfc.data();
-        int go = system("rm /tmp/kartesiotmp.txt");
-        go = system(tmc);
-	// if go is not 0, then it means that maxima died
-	if  (go!=0) QMessageBox::critical(this,"Error","Seems that Maxima process died calculating the result.") ;
-	
-        char tmpchr;
-        ifstream texto("/tmp/kartesiotmp.txt");
-        if (texto) {
-            do {
-                texto >> tmpchr;
-                myfunz = myfunz + tmpchr;
-            } while (!texto.eof());
-        }
-        texto.close();
-
-        //now we have a string like this "...solve([1=a3+b3+c,2=a4+b4+c,3=a5+b5+c],[a,b,c])(%o2)[[a=0,b=1,c=-2]]]"
-        //and we must read the values of the coefficients to store them in a list then we create the function
-        //replacing the correct coefficient values into the original function written by user
-
-	if (myfunz.indexOf("(%o2)")==-1) return 0;
-        QString tempstr = myfunz.split("(%o2)").at(1);
-	//we must delete [ and ]
-	//QString cancstr = tempstr.replace(" ","");
-        QString cancstr = tempstr.replace("[","");
-        cancstr = cancstr.replace("]","");
-	if (myfunz.indexOf(",")==-1 and totalcoeff>1) return 0;
-        QStringList cmvalue = cancstr.split(",");
-	myrep = myrep + cancstr+ "\n";
-        //ignore the result if it is not a correct number
-        int good = 1;
-        for (int u=0; u<totalcoeff; u++){
-            for (int n=0; n<cmvalue.count() ; n++){
-	    if (cmvalue.at(n).indexOf("=")==-1) {
-	      break;
-	      good = 0;
-	    }
-            QStringList mnval = cmvalue.at(n).split("=");
-            QScriptEngine myEnginee;
-            QScriptValue isreal = myEnginee.evaluate(mnval.at(1)+"*0");
-            if (isreal.toString()!="0") good = 0;
-            }
-        }
-	
-
-        myfunz = func->text();
-
-        if (good == 1){
-        for (int u=0; u<totalcoeff; u++){
-            for (int n=0; n<cmvalue.count() ; n++){
-	      if (cmvalue.at(n).indexOf("=")!=-1) {
-                QStringList mnval = cmvalue.at(n).split("=");
-                if (mnval.at(0)==coeff.at(u)){
-                    //now we must sum the new value to the others
-                    QString newvar = mnval.at(1);
-                    if (resfunz=="") resfunz = myfunz;
-                    if (f!=0 and tryn!=0) {  //remember that f begins with 0
-                        QStringList mnvalo = oldcvalue.at(n).split("=");
-                        //double newval = (((mnvalo.at(1).toDouble()*(f))+mnval.at(1).toDouble())/(f+1));
-                        double newval = (((mnvalo.at(1).toDouble()*(tryn))+mnval.at(1).toDouble())/(tryn+1));
-                        newvar.setNum(newval);
-                    }
-                    QByteArray banf = resfunz.toLatin1();
-                    char *tmfnz = banf.data();
-                    //myfunz = replacevar(tmfnz,newvar, coeff.at(u));
-                    resfunz = replacevar(tmfnz,newvar, coeff.at(u));
-                    tryn++;
-                }
-	    }
-        }
-        }
-        oldcvalue = cmvalue;
-        }
-    } //here ends the search for coefficients values
-    } //here ends the "else"
-    return resfunz;
-    resfunz = "";
-}
-
-void MainWindow::plot(QTableWidget *table, QString function, bool original, bool funz){
+void MainWindow::plot(QTableWidget *table, QString function, bool original, bool funz) {
 
     //this function plots the original points and the best fit curve
-    width = int(xmax - xmin);
+    mycalcs.m_width = int(mycalcs.m_xmax - mycalcs.m_xmin);
     //now I'm preparing the kplot widget
     uid.kplotwidget->removeAllPlotObjects();
-    uid.kplotwidget->setLimits( xmin, xmax, ymin, ymax ); //now I need to set the limits of the plot
+    uid.kplotwidget->setLimits( mycalcs.m_xmin, mycalcs.m_xmax, mycalcs.m_ymin, mycalcs.m_ymax ); //now I need to set the limits of the plot
 
     KPlotObject *kpog = new KPlotObject( Qt::green, KPlotObject::Lines );
     KPlotObject *kpob = new KPlotObject( Qt::blue, KPlotObject::Lines );
 
-    greenplot = "<polyline points=\"";
-    blueplot = "<polyline points=\"";
-    greenplottex = "\\psline[linecolor=green, showpoints=false]";
-    blueplottex = "\\psline[linecolor=blue, showpoints=true]";
+    mycalcs.m_greenPlot = "<polyline points=\"";
+    mycalcs.m_bluePlot = "<polyline points=\"";
+    mycalcs.m_greenPlotLatex = "\\psline[linecolor=green, showpoints=false]";
+    mycalcs.m_bluePlotLatex = "\\psline[linecolor=blue, showpoints=true]";
 
     //uid.tableWidget->sortItems(1, Qt::AscendingOrder); //seems that the sorting doesn't work correctly
     if (!table->item(0,0) || table->item(0,0)->text().isEmpty())
@@ -328,12 +157,12 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
             } else {
                 totaldata++;
                 if (original==true) kpob->addPoint(table->item(i,0)->data(Qt::DisplayRole).toDouble(), table->item(i,1)->data(Qt::DisplayRole).toDouble());
-                blueplot = blueplot + " " + QString::number((table->item(i,0)->data(Qt::DisplayRole).toDouble()*10)+5).replace(QString(","), QString(".")) + "," + QString::number((ymax-table->item(i,1)->data(Qt::DisplayRole).toDouble())*10).replace(QString(","), QString("."));
-		blueplottex = blueplottex + "(" + QString::number((table->item(i,0)->data(Qt::DisplayRole).toDouble())).replace(QString(","), QString(".")) + "," + QString::number((table->item(i,1)->data(Qt::DisplayRole).toDouble())).replace(QString(","), QString("."))+")";
+                mycalcs.m_bluePlot = mycalcs.m_bluePlot + " " + QString::number((table->item(i,0)->data(Qt::DisplayRole).toDouble()*10)+5).replace(QString(","), QString(".")) + "," + QString::number((mycalcs.m_ymax-table->item(i,1)->data(Qt::DisplayRole).toDouble())*10).replace(QString(","), QString("."));
+                mycalcs.m_bluePlotLatex = mycalcs.m_bluePlotLatex + "(" + QString::number((table->item(i,0)->data(Qt::DisplayRole).toDouble())).replace(QString(","), QString(".")) + "," + QString::number((table->item(i,1)->data(Qt::DisplayRole).toDouble())).replace(QString(","), QString("."))+")";
             }
         }
         //THIS IS THE PLOT OF BEST FIT CURVE
-        for (int i=int(xmin); i<(int(xmax)); i++) {
+        for (int i=int(mycalcs.m_xmin); i<(int(mycalcs.m_xmax)); i++) {
             double id = i;
             QString mreporto = function;
             QScriptEngine myEngine;
@@ -344,14 +173,14 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
             istr.append(QString("%1").arg((id)));
             //now i'm using QScript language to solve the expression
             //in a future we can consider to change it supporting some backends, but it's really complex
-            QString myscript = solvex(tmreporto,istr); //myscript is the equation converted in QScript language and with the value of x axis (istr) instead of "x" variable
+            QString myscript = mycalcs.solvex(tmreporto,istr); //myscript is the equation converted in QScript language and with the value of x axis (istr) instead of "x" variable
             //QString myscript = replacevar(tmreporto,istr, "x"); //myscript is the equation converted in QScript language and with the value of x axis (istr) instead of "x" variable
-	    QScriptValue three = myEngine.evaluate(myscript);
+            QScriptValue three = myEngine.evaluate(myscript);
 
             double tvalue = three.toNumber();
             if (funz==true) kpog->addPoint(id, tvalue);
-            greenplot = greenplot + " " + QString::number((id*10)+5).replace(QString(","), QString(".")) + "," + QString::number((ymax-tvalue)*10).replace(QString(","), QString("."));
-	    greenplottex = greenplottex + "(" + QString::number(id).replace(QString(","), QString(".")) + "," + QString::number((tvalue)).replace(QString(","), QString("."))+")";
+            mycalcs.m_greenPlot = mycalcs.m_greenPlot + " " + QString::number((id*10)+5).replace(QString(","), QString(".")) + "," + QString::number((mycalcs.m_ymax-tvalue)*10).replace(QString(","), QString("."));
+            mycalcs.m_greenPlotLatex = mycalcs.m_greenPlotLatex + "(" + QString::number(id).replace(QString(","), QString(".")) + "," + QString::number((tvalue)).replace(QString(","), QString("."))+")";
 
         }
     } //here ends the experimental values mode
@@ -359,133 +188,32 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
     uid.kplotwidget->addPlotObject(kpog);
     uid.kplotwidget->addPlotObject(kpob);
 
-    blueplot = blueplot + "\" style=\"stroke:blue;fill:none\"/> ";
-    greenplot = greenplot + "\" style=\"stroke:green;fill:none\"/> ";
+    mycalcs.m_bluePlot = mycalcs.m_bluePlot + "\" style=\"stroke:blue;fill:none\"/> ";
+    mycalcs.m_greenPlot = mycalcs.m_greenPlot + "\" style=\"stroke:green;fill:none\"/> ";
 
 }
-
-QString MainWindow::solvex(char *yvalue, QString dnum) {
-    //yvalue contains the equation of Y-axis variable
-    //Remember that the function to elevate to power is Math.pow(b,e)
-    //dnum is the value of x
-    QString mreport;
-    QString tempy;
-    QString tempyold;
-    QString tempyolda = "";
-    QString tempyn = "";
-    int olda =0;
-    mreport ="";
-    QString tempyval;
-    tempy = "";
-    for (int i=0; strlen(yvalue)+1;i++) {
-        if (!(yvalue[i]=='=' or yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',')) break; //if current value is not a permitted value, this means that something is wrong
-        if (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M') tempyn = tempyn + yvalue[i]; // every letter will be added in the variable tempyn so we can study it
-        tempy = "";
-        if  (yvalue[i]=='=' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',' ) tempyn = "";
-        if (tempyn=="x") tempy=dnum; //replace every x with the correct numerical value
-        //use the correct functions
-        if (tempyn=="cos") tempy = "Math.cos";
-        if (tempyn=="sin") tempy = "Math.sin";
-        if (tempyn=="tan") tempy = "Math.tan";
-        if (tempyn=="cot") tempy = "Math.cot";
-        if (tempyn=="exp") tempy = "Math.exp";
-        if (tempyn=="abs") tempy = "Math.abs";
-        if (tempyn=="acos") tempy = "Math.acos";
-        if (tempyn=="atan") tempy = "Math.atan";
-        if (tempyn=="atan2") tempy = "Math.atan2";
-        if (tempyn=="asin") tempy = "Math.asin";
-        if (tempyn=="ceil") tempy = "Math.ceil";
-        if (tempyn=="floor") tempy = "Math.floor";
-        if (tempyn=="log") tempy = "Math.log"; //here's the usual problem: some people call log the logarithm in e, others call it ln
-        if (tempyn=="ln") tempy = "Math.log"; //here's the usual problem: some people call log the logarithm in e, others call it ln
-        if (tempyn=="max") tempy = "Math.max";
-        if (tempyn=="min") tempy = "Math.min";
-        if (tempyn=="random") tempy = "Math.random";
-        if (tempyn=="round") tempy = "Math.round";
-        if (tempyn=="sqrt") tempy = "Math.sqrt";
-
-        //the simbol ^ should be replaced by Math.pow(base, exp)
-        if (olda==1){
-            //we need to know when we get a simbol to know the power exponent is ended
-            tempyold = tempyold + yvalue[i];
-            if  (yvalue[i]=='(' or yvalue[i]==')' ) {
-                tempyval = tempyval + QString("Math.pow(") + tempyolda + QString(",") + tempyold + QString(")");
-                tempyolda = "";
-                tempyold  = "";
-                olda = 0;
-            }
-        } else {
-        //if the character is a number or a mathematic simbol we simply copy it
-        if  ((yvalue[i]=='=' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',' ) and (olda!=1) ) tempyval = tempyval + yvalue[i];
-        if (yvalue[i]=='^') {
-            olda =1;
-        }
-        if ((yvalue[i+1]!='^') and (yvalue[i]!='^') and (tempy!="")) {
-            tempyval = tempyval + tempy;
-            tempy ="";
-        }
-        if (yvalue[i+1]=='^') {
-            tempyolda = tempy;
-            tempy ="";
-        }
-        if (tempyval!="") mreport = tempyval;
-    }
-    }
-    return mreport;
-}
-
-QString MainWindow::replacevar(char *yvalue, QString dnum, QString var) {
-    //yvalue contains the equation of Y-axis variable
-    //Remember that the function to elevate to power is Math.pow(b,e)
-    //dnum is the value of x
-    QString mreport;
-    QString tempy;
-    QString tempyn = "";
-    int olda =0;
-    mreport ="";
-    QString tempyval;
-    tempy = "";
-    for (int i=0; strlen(yvalue)+1;i++) {
-        if (!(yvalue[i]=='=' or yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',')) break; //if current value is not a permitted value, this means that something is wrong
-        if (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M') tempyn = tempyn + yvalue[i]; // every letter will be added in the variable tempyn so we can study it
-        tempy = "";
-        if  (yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',' ) tempyn = "";
-        if  ((yvalue[i+1]=='+' or yvalue[i+1]=='=' or yvalue[i+1]=='-' or yvalue[i+1]=='*' or yvalue[i+1]=='^' or yvalue[i+1]=='/' or yvalue[i+1]=='(' or yvalue[i+1]==')' or yvalue[i+1]=='1' or yvalue[i+1]=='2' or yvalue[i+1]=='3' or yvalue[i+1]=='4' or yvalue[i+1]=='5' or yvalue[i+1]=='6' or yvalue[i+1]=='7' or yvalue[i+1]=='8' or yvalue[i+1]=='9' or yvalue[i+1]=='0' or yvalue[i+1]=='.' or yvalue[i+1]==' ' or yvalue[i+1]==',' or yvalue[i+1]=='=' or (i+1)==(strlen(yvalue))) ) {
-            if (tempyn==var) tempyval = tempyval + dnum; //replace every x with the correct value
-            if (tempyn!=var) tempyval = tempyval + tempyn;
-            tempyn = "";
-        }
-        //use the correct functions
-        //if the carachter is a number or a mathematic simbol we simply copy it
-        if  ((yvalue[i]=='=' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='*' or yvalue[i]=='^' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',' ) and (olda!=1) ) tempyval = tempyval + yvalue[i];
-
-        if (tempyval!="") mreport = tempyval;
-    }
-    return mreport;
-}
-
 
 void MainWindow::on_xmin_valueChanged(double val)
 {
-    xmin = val;
+    mycalcs.m_xmin = val;
     drawpl();
 }
 
 void MainWindow::on_xmax_valueChanged(double val)
 {
-    xmax = val;
+    mycalcs.m_xmax = val;
     drawpl();
 }
 
 void MainWindow::on_ymin_valueChanged(double val)
 {
-    ymin = val;
+    mycalcs.m_ymin = val;
     drawpl();
 }
 
 void MainWindow::on_ymax_valueChanged(double val)
 {
-    ymax = val;
+    mycalcs.m_ymax = val;
     drawpl();
 }
 
@@ -537,7 +265,7 @@ void MainWindow::on_actionShow_example_triggered()
     titemo->setText("3.14");
     titemo = uid.tableWidget->item(2,1);
     titemo->setText("1");
-    
+
     //uid.function->setText("y=(a*(x^3))+(b*(x^2))+(c*x)+d");
     uid.function->setText("y=a*sin(x)+b");
     uid.xmin->setValue(0.00);
@@ -546,25 +274,25 @@ void MainWindow::on_actionShow_example_triggered()
     uid.ymax->setValue(5.00);
 }
 
-void MainWindow::on_actionOpen_triggered(){
-  file = QFileDialog::getOpenFileName(this,"Open work","","Kartesio File (*.kartesio)");
-  Openfile();
+void MainWindow::on_actionOpen_triggered() {
+    mycalcs.m_file = QFileDialog::getOpenFileName(this,"Open work","","Kartesio File (*.kartesio)");
+    Openfile();
 }
 
-void MainWindow::Openarg(QString filename){
-  //remove the first 7 characters
-  file = filename.remove(0,7);
-  Openfile();
+void MainWindow::Openarg(QString filename) {
+    //remove the first 7 characters
+    mycalcs.m_file = filename.remove(0,7);
+    Openfile();
 }
 
-void MainWindow::Openfile(){
-  //loads all the cells text from a file prevoiusly saved
-    if (file!="") {
-      setCaption(file); //for some reason I don't get, this method doesn't work
-        QByteArray bac = file.toLatin1();
+void MainWindow::Openfile() {
+    //loads all the cells text from a file prevoiusly saved
+    if (mycalcs.m_file!="") {
+        setCaption(mycalcs.m_file); //for some reason I don't get, this method doesn't work
+        QByteArray bac = mycalcs.m_file.toLatin1();
         char *filec = bac.data();
         ifstream texto(filec);
-        if (!texto) QMessageBox::critical(this,"Error","Unable to open "+file) ;
+        if (!texto) QMessageBox::critical(this,"Error","Unable to open "+mycalcs.m_file) ;
         if (texto) {
             on_actionNew_triggered();
             QString tempyval;
@@ -588,12 +316,12 @@ void MainWindow::Openfile(){
                         i++;
                     }
 
-         
+
                     if ((xax==1) and (tempyval != QString("table1"))  and (tempyval != QString("function"))  ) {
                         uid.function->setText(tempyval);
-			xax = 0;
+                        xax = 0;
                     }
-                    
+
                     if (tempyval == QString("table1")) {
                         i=0;
                         tablea=1;
@@ -603,23 +331,23 @@ void MainWindow::Openfile(){
                         tablea=0;
                         xax = 1;
                     }
-                    
+
                     tempyval = "";
                 }
             } while (!texto.eof());
             texto.close();
         }
     }
-    
+
 }
 
-void MainWindow::on_actionSave_triggered(){
-  if (file == "") {
-    on_actionSaveAs_triggered();
-    exit;
-  }
-  //save all the cells values
-    
+void MainWindow::on_actionSave_triggered() {
+    if (mycalcs.m_file == "") {
+        on_actionSaveAs_triggered();
+        exit;
+    }
+    //save all the cells values
+
     QString tempyval;
     tempyval = "table1|";
     for (int i=0; i<uid.tableWidget->rowCount() ; i++) {
@@ -635,69 +363,69 @@ void MainWindow::on_actionSave_triggered(){
     }
     tempyval =  tempyval + QString("\nfunction|");
     tempyval = tempyval + QString("\n") + uid.function->text() + QString("|");
-    
+
     tempyval =  tempyval + QString("\nthe end|\n");
 
-    if (file!="") {
+    if (mycalcs.m_file!="") {
         QByteArray ba = tempyval.toLatin1();
         char *strsave = ba.data();
-        QByteArray bac = file.toLatin1();
+        QByteArray bac = mycalcs.m_file.toLatin1();
         char *filec = bac.data();
 
         ofstream out(filec);
-        if (!out) QMessageBox::critical(this,"Error","Unable to create "+file) ;
+        if (!out) QMessageBox::critical(this,"Error","Unable to create "+mycalcs.m_file) ;
         out << strsave;
         out.close();
     }
 }
-void MainWindow::on_actionSaveAs_triggered(){
-  //save as
-  file = QFileDialog::getSaveFileName(this,"Save work","","Kartesio File (*.kartesio)");
-  setCaption(file);
-  on_actionSave_triggered();
+void MainWindow::on_actionSaveAs_triggered() {
+    //save as
+    mycalcs.m_file = QFileDialog::getSaveFileName(this,"Save work","","Kartesio File (*.kartesio)");
+    setCaption(mycalcs.m_file);
+    on_actionSave_triggered();
 }
-void MainWindow::on_actionSvg_triggered(){
+void MainWindow::on_actionSvg_triggered() {
     //This function saves the plot into a SVG file
-    QString svgheader = "<?xml version=\"1.0\" encoding=\"iso-8859-1\" standalone=\"no\"?> <!DOCTYPE svg PUBLIC \"-//W3C//Dtd SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/Dtd/svg11.dtd\"> <svg width=\""+ QString::number((xmax*10)+5)+ "\" height=\""+ QString::number((ymax*10)+5)+ "\"  version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\"><polyline points=\"5," + QString::number(ymax*10) + " " + QString::number((xmax*10)-5) + "," + QString::number(ymax*10) + " " + QString::number((xmax*10)-5) + "," + QString::number((ymax*10)-5) + " " + QString::number(xmax*10) + "," + QString::number(ymax*10) + " " + QString::number((xmax*10)-5) + "," + QString::number((ymax*10)+5) + " " + QString::number((xmax*10)-5) + "," + QString::number(ymax*10) + "\" style=\"stroke:black;fill:none\"/> <polyline points=\"5," + QString::number(ymax*10) + " 5,5 10,5 5,0 0,5 5,5\" style=\"stroke:black;fill:none\"/> ";    
+    QString svgheader = "<?xml version=\"1.0\" encoding=\"iso-8859-1\" standalone=\"no\"?> <!DOCTYPE svg PUBLIC \"-//W3C//Dtd SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/Dtd/svg11.dtd\"> <svg width=\""+ QString::number((mycalcs.m_xmax*10)+5)+ "\" height=\""+ QString::number((mycalcs.m_ymax*10)+5)+ "\"  version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\"><polyline points=\"5," + QString::number(mycalcs.m_ymax*10) + " " + QString::number((mycalcs.m_xmax*10)-5) + "," + QString::number(mycalcs.m_ymax*10) + " " + QString::number((mycalcs.m_xmax*10)-5) + "," + QString::number((mycalcs.m_ymax*10)-5) + " " + QString::number(mycalcs.m_xmax*10) + "," + QString::number(mycalcs.m_ymax*10) + " " + QString::number((mycalcs.m_xmax*10)-5) + "," + QString::number((mycalcs.m_ymax*10)+5) + " " + QString::number((mycalcs.m_xmax*10)-5) + "," + QString::number(mycalcs.m_ymax*10) + "\" style=\"stroke:black;fill:none\"/> <polyline points=\"5," + QString::number(mycalcs.m_ymax*10) + " 5,5 10,5 5,0 0,5 5,5\" style=\"stroke:black;fill:none\"/> ";
     QString svgcomplete = svgheader ;
-    if (uid.fitplot->isChecked()) svgcomplete = svgcomplete + greenplot ; 
-    if (uid.originalplot->isChecked()) svgcomplete = svgcomplete + blueplot; 
+    if (uid.fitplot->isChecked()) svgcomplete = svgcomplete + mycalcs.m_greenPlot ;
+    if (uid.originalplot->isChecked()) svgcomplete = svgcomplete + mycalcs.m_bluePlot;
     svgcomplete = svgcomplete + "</svg> ";
-        
+
     QString files = QFileDialog::getSaveFileName(this,"Save plot","","Svg image (*.svg)");
     if (files!="") {
-      QByteArray svgt = svgcomplete.toLatin1();
-      char *strsave = svgt.data();
-      QByteArray ban = files.toLatin1();
-      char *filec = ban.data();
-      
-      ofstream out(filec);
-      if (!out) QMessageBox::critical(this,"Error","Unable to create "+files) ;
-      out << strsave;
-      out.close();
+        QByteArray svgt = svgcomplete.toLatin1();
+        char *strsave = svgt.data();
+        QByteArray ban = files.toLatin1();
+        char *filec = ban.data();
+
+        ofstream out(filec);
+        if (!out) QMessageBox::critical(this,"Error","Unable to create "+files) ;
+        out << strsave;
+        out.close();
     }
 }
-void MainWindow::on_actionTex_triggered(){
-  //save as latex
-  
-    QString texheader = "\\documentclass[a4paper,12pt]{article}\n \\usepackage{pst-plot}\n \\begin{document} \n \\psset{xunit=1mm,yunit=1mm} %you can make the plot bigger changing xunit and yunit value";    
+void MainWindow::on_actionTex_triggered() {
+    //save as latex
+
+    QString texheader = "\\documentclass[a4paper,12pt]{article}\n \\usepackage{pst-plot}\n \\begin{document} \n \\psset{xunit=1mm,yunit=1mm} %you can make the plot bigger changing xunit and yunit value";
     QString texcomplete = texheader ;
-    if (uid.fitplot->isChecked()) texcomplete = texcomplete + "\n" + greenplottex ; 
-    if (uid.originalplot->isChecked()) texcomplete = texcomplete + "\n" + blueplottex; 
+    if (uid.fitplot->isChecked()) texcomplete = texcomplete + "\n" + mycalcs.m_greenPlotLatex ;
+    if (uid.originalplot->isChecked()) texcomplete = texcomplete + "\n" + mycalcs.m_bluePlotLatex;
     texcomplete = texcomplete + QString(" \n \\[ ") + uid.result->text() + QString(" \\] \n \\end{document} ");
-        
+
     QString files = QFileDialog::getSaveFileName(this,"Save plot","","Latex document (*.tex)");
     if (files!="") {
-      QByteArray tex = texcomplete.toLatin1();
-      char *strsave = tex.data();
-      QByteArray ban = files.toLatin1();
-      char *filec = ban.data();
-      
-      ofstream out(filec);
-      if (!out) QMessageBox::critical(this,"Error","Unable to create "+files) ;
-      out << strsave;
-      out.close();
-      if (out) QMessageBox::information(this,"Well done","Please take note that you can't use pdflatex to convert this file directly into a pdf file. You can convert it only into dvi,and then will be possible to create a pdf.") ;
+        QByteArray tex = texcomplete.toLatin1();
+        char *strsave = tex.data();
+        QByteArray ban = files.toLatin1();
+        char *filec = ban.data();
+
+        ofstream out(filec);
+        if (!out) QMessageBox::critical(this,"Error","Unable to create "+files) ;
+        out << strsave;
+        out.close();
+        if (out) QMessageBox::information(this,"Well done","Please take note that you can't use pdflatex to convert this file directly into a pdf file. You can convert it only into dvi,and then will be possible to create a pdf.") ;
     }
-  
+
 }
