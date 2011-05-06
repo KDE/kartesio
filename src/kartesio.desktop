@@ -1,0 +1,31 @@
+# KDE Config File
+[Desktop Entry]
+Type=Application
+Exec=kartesio -caption "%c" %i
+Icon=kartesio
+X-DocPath=kartesio/index.html
+MimeType=chemical/x-kartesio;
+Comment=Calculate a best fit curve for some points
+Comment[et]=Parima sobivusega kõvera arvutamine mõningate punktide põhjal
+Comment[nl]=Een best passende kromme voor enige punten berekenen
+Comment[pt]=Calcular uma curva de ajuste óptimo para alguns pontos
+Comment[sv]=Beräkna en bästa kurvanpassning för ett antal punkter
+Comment[uk]=Визначення кривої найкращого наближення за декількома точками
+Comment[x-test]=xxCalculate a best fit curve for some pointsxx
+Terminal=false
+Name=Kartesio
+Name[cs]=Kartesio
+Name[et]=Kartesio
+Name[nl]=Kartesio
+Name[pt]=Kartesio
+Name[sv]=Kartesio
+Name[uk]=Kartesio
+Name[x-test]=xxKartesioxx
+GenericName=Best fit curve calculator
+GenericName[et]=Parima sobivusega kõvera arvutamine
+GenericName[nl]=Rekenmachine voor best passende kromme
+GenericName[pt]=Calculadora de curvas de ajuste óptimo
+GenericName[sv]=Beräkning av bästa kurvanpassning
+GenericName[uk]=Програма для обчислення кривої найкращого наближення
+GenericName[x-test]=xxBest fit curve calculatorxx
+Categories=Qt;KDE;Education;Science;Chemistry;Math;Phisycs;
