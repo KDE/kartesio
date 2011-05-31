@@ -4,6 +4,7 @@ MainWindow::MainWindow(QWidget *parent)
         : KXmlGuiWindow(parent)
 {
 
+    setWindowIcon( KIcon( "kartesio" ) ); 
     KAction* clearAction = new KAction(this);
     clearAction->setText(i18n("&New"));
     clearAction->setIcon(KIcon("document-new"));
@@ -175,6 +176,7 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
             //in a future we can consider to change it supporting some backends, but it's really complex
             QString myscript = mycalcs.solvex(tmreporto,istr); //myscript is the equation converted in QScript language and with the value of x axis (istr) instead of "x" variable
             //QString myscript = replacevar(tmreporto,istr, "x"); //myscript is the equation converted in QScript language and with the value of x axis (istr) instead of "x" variable
+	    //if (i==int(mycalcs.m_xmin)) QMessageBox::information(this, "string", mycalcs.solvex(tmreporto,istr));
             QScriptValue three = myEngine.evaluate(myscript);
 
             double tvalue = three.toNumber();

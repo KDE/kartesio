@@ -8,8 +8,8 @@ set(kartesio_SRCS
 SET(kartesio_MOC_HDRS mainwindow.h)
 kde4_add_ui_files(kartesio_SRCS mainwindow.ui )
 
-QT4_WRAP_CPP ( kartesio_MOC_SRCS ${kartesio_MOC_HDRS} )
 QT4_AUTOMOC ( ${kartesio_SRCS} ${kartesio_MOC_SRCS} )
+QT4_WRAP_CPP ( kartesio_MOC_SRCS ${kartesio_MOC_HDRS} )
 
 
 SET(kartesio_EXECUTABLE
@@ -18,7 +18,7 @@ SET(kartesio_EXECUTABLE
                 ${kartesio_UI_HDRS}
 )
 
-kde4_add_app_icon(kartesio_SRCS "../icons/*.png")
+kde4_add_app_icon(kartesio_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../icons/hi*-app-kartesio.png")
 kde4_add_executable(kartesio ${kartesio_EXECUTABLE})
 
 target_link_libraries(kartesio ${KDE4_KDEUI_LIBS} ${QT_QTSCRIPT_LIBRARIES} kdeeduui)

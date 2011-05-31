@@ -191,6 +191,11 @@ QString Calculations::solvex(char *yvalue, QString dnum) {
     //yvalue contains the equation of Y-axis variable
     //Remember that the function to elevate to power is Math.pow(b,e)
     //dnum is the value of x
+    //the E must be changed to *10^: for example, the function
+    //y=4.6374269005847954E-8*(x^3)+-1.8212280701754386E-5*(x^2)+0.002477485380117*x+0
+    //should be
+    //y=4.6374269005847954*10^-8*(x^3)+-1.8212280701754386*10^-5*(x^2)+0.002477485380117*x+0
+    
     QString mreport;
     QString tempy;
     QString tempyold;
@@ -226,7 +231,15 @@ QString Calculations::solvex(char *yvalue, QString dnum) {
         if (tempyn=="random") tempy = "Math.random";
         if (tempyn=="round") tempy = "Math.round";
         if (tempyn=="sqrt") tempy = "Math.sqrt";
-
+	//if (tempyn=="E") tempy = "*10^";
+	if (tempyn=="E") {
+	  tempy = "*Math.pow(10,";
+	  do{
+	    i++;
+	    tempy = tempy + yvalue[i];
+	  }while ((QString(yvalue[i+1])!=QString("*")));//until i+1=="*"
+	  tempy = tempy + ")";
+	}
         //the simbol ^ should be replaced by Math.pow(base, exp)
         if (olda==1) {
             //we need to know when we get a simbol to know the power exponent is ended

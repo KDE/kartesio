@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "ui_mainwindow.h"
+#include "src/ui_mainwindow.h"
 #include "calculations.h"
 
 using namespace std;
