@@ -346,7 +346,7 @@ void MainWindow::Openfile() {
 void MainWindow::on_actionSave_triggered() {
     if (mycalcs.m_file == "") {
         on_actionSaveAs_triggered();
-        exit;
+        return;
     }
     //save all the cells values
 

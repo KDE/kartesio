@@ -184,7 +184,7 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
         } //here ends the search for coefficients values
     } //here ends the "else"
     return m_resultFunction;
-    m_resultFunction = "";
+    //m_resultFunction = "";
 }
 
 QString Calculations::solvex(char *yvalue, QString dnum) {
