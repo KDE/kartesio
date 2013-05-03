@@ -1,7 +1,7 @@
 # KDE Config File
 [Desktop Entry]
 Type=Application
-Exec=kartesio -caption "%c" %i
+Exec=kartesio -caption %c %i
 Icon=kartesio
 X-DocPath=kartesio/index.html
 MimeType=chemical/x-kartesio;
