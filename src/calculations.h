@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <float.h>
+#include "vector"
 
 #include <QtGui/QMainWindow>
 #include "QtGui/QTableWidget"
@@ -20,6 +21,7 @@
 #include <QtScript/QScriptClass>
 #include <QtCore/QVarLengthArray>
 #include <QtGui/QMessageBox>
+#include <QtGui/QComboBox>
 #include <QtGui/QTableWidgetItem>
 
 #include "kplotwidget.h"
@@ -34,6 +36,9 @@
 #include "kapplication.h"
 #include "kxmlguiwindow.h"
 
+#include <libzorbaneural/neuralnet.h>
+
+
 using namespace std;
 
 class Calculations
@@ -45,8 +50,10 @@ public:
     virtual ~Calculations();
 
     QString calculate(QTableWidget *table,  QLineEdit *func);
+    QString trainNN(QTableWidget *table,  QComboBox *func, bool backprop, bool genalg);
     QString solvex(char *yvalue, QString dnum);
     QString replacevar(char *yvalue, QString dnum, QString var);
+    double rmsError(QTableWidget *table,  QString func);
 
     QString m_greenPlot;
     QString m_bluePlot;
@@ -60,6 +67,9 @@ public:
     double m_xmax;
     double m_ymin;
     double m_ymax;
+    double m_resolution;
+    double m_rmserror;
+    long m_maxIters;
     int m_width;
     QString m_myReport;
 };

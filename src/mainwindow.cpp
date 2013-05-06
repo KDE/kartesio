@@ -58,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     connect(clearAction, SIGNAL(triggered(bool)),this, SLOT(on_actionNew_triggered()));
-    connect(plotAction, SIGNAL(triggered(bool)),this, SLOT(on_pushButton_clicked()));
+    connect(plotAction, SIGNAL(triggered(bool)),this, SLOT(drawpl()));
     connect(openAction, SIGNAL(triggered(bool)),this, SLOT(on_actionOpen_triggered()));
     connect(saveAction, SIGNAL(triggered(bool)),this, SLOT(on_actionSave_triggered()));
     connect(saveasAction, SIGNAL(triggered(bool)),this, SLOT(on_actionSaveAs_triggered()));
@@ -81,17 +81,24 @@ MainWindow::MainWindow(QWidget *parent)
     mycalcs.m_xmax = 50;
     mycalcs.m_ymin = 0;
     mycalcs.m_ymax = 50;
+    mycalcs.m_resolution = 1.0;
+    mycalcs.m_maxIters = 2000000;
+    mycalcs.m_rmserror = 0.0;
     mycalcs.m_width = int(mycalcs.m_xmax - mycalcs.m_xmin);
     mycalcs.m_file = "";
 
-    plot(uid.tableWidget, "",uid.originalplot->isChecked(),uid.fitplot->isChecked());
+    plot(uid.tableWidget, "",  uid.originalplot->isChecked(),uid.fitplot->isChecked());
 
 
     connect( uid.pushButton, SIGNAL( clicked() ),this, SLOT( on_pushButton_clicked() ) );
+    connect( uid.pushButton_2, SIGNAL( clicked() ),this, SLOT( on_pushButton_2_clicked() ) );
+    //connect( uid.sort, SIGNAL( clicked() ),this, SLOT( on_sort_clicked() ) );
     connect( uid.xmin, SIGNAL( valueChanged(double ) ),this, SLOT( on_xmin_valueChanged(double ) ) );
     connect( uid.xmax, SIGNAL( valueChanged(double ) ),this, SLOT( on_xmax_valueChanged(double ) ) );
     connect( uid.ymin, SIGNAL( valueChanged(double ) ),this, SLOT( on_ymin_valueChanged(double ) ) );
     connect( uid.ymax, SIGNAL( valueChanged(double ) ),this, SLOT( on_ymax_valueChanged(double ) ) );
+    connect( uid.resolution, SIGNAL( valueChanged(double ) ),this, SLOT( on_resolution_valueChanged(double ) ) );
+    connect( uid.maxIters, SIGNAL( valueChanged(double ) ),this, SLOT( on_maxiters_valueChanged(double ) ) );
     connect( uid.fitplot, SIGNAL( stateChanged(int ) ),this, SLOT( on_fitplot_stateChanged(int ) ) );
     connect( uid.originalplot, SIGNAL( stateChanged(int ) ),this, SLOT( on_originalplot_stateChanged(int ) ) );
 
@@ -101,6 +108,16 @@ MainWindow::~MainWindow()
 {
     //delete ui;
     //delete mycalcs;
+}
+
+void MainWindow::on_sort_clicked()
+{
+  for (int i=0; i<uid.tableWidget->rowCount() ; i++) {
+    if (!uid.tableWidget->item(i,0) || uid.tableWidget->item(i,0)->text().isEmpty()) {
+      uid.tableWidget->removeRow(i);
+    }
+  }
+  uid.tableWidget->sortItems(1, Qt::AscendingOrder);
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -117,10 +134,24 @@ void MainWindow::on_pushButton_clicked()
 
 }
 
+void MainWindow::on_pushButton_2_clicked()
+{
+    //if (uid.function->text()!="") {
+    QString value = mycalcs.trainNN(uid.tableWidget,  uid.comboBox, uid.backprop->isChecked(), uid.genalg->isChecked());
+    //if  (value==QString("died")) QMessageBox::critical(this,"Error","Seems that Maxima process died calculating the result.") ;
+    //if  (value!=QString("died")) {
+        uid.result->setText(value);
+        //for some reason if we call directly the function plot, the program crashes, so we need to use the function drawpl
+        drawpl();
+    //}
+    //}
+
+}
+
 void MainWindow::drawpl() {
     QString tempstr = "";
     if (uid.result->text()!="") tempstr = uid.result->text().split("=").at(1);
-    plot(uid.tableWidget, tempstr,uid.originalplot->isChecked(),uid.fitplot->isChecked());
+    plot(uid.tableWidget, tempstr, uid.originalplot->isChecked(),uid.fitplot->isChecked());
 }
 
 void MainWindow::on_actionReport_triggered() {
@@ -134,7 +165,7 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
     //now I'm preparing the kplot widget
     uid.kplotwidget->removeAllPlotObjects();
     uid.kplotwidget->setLimits( mycalcs.m_xmin, mycalcs.m_xmax, mycalcs.m_ymin, mycalcs.m_ymax ); //now I need to set the limits of the plot
-
+    
     KPlotObject *kpog = new KPlotObject( Qt::green, KPlotObject::Lines );
     KPlotObject *kpob = new KPlotObject( Qt::blue, KPlotObject::Lines );
 
@@ -143,11 +174,27 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
     mycalcs.m_greenPlotLatex = "\\psline[linecolor=green, showpoints=false]";
     mycalcs.m_bluePlotLatex = "\\psline[linecolor=blue, showpoints=true]";
 
-    //uid.tableWidget->sortItems(1, Qt::AscendingOrder); //seems that the sorting doesn't work correctly
+    //uid.tableWidget->sortItems(1, Qt::AscendingOrder); 
     if (!table->item(0,0) || table->item(0,0)->text().isEmpty())
     {
         //go on
     } else {
+      
+      if (uid.showerror->isChecked() && function!="") {
+	KPlotObject *kpol = new KPlotObject( Qt::white, KPlotObject::Points );
+	kpol->setLabelPen(QPen( Qt::red, 3.0, Qt::SolidLine ) );
+	//kpol->setLabelPen(QPen( Qt::red, (mycalcs.m_width/1.67), Qt::SolidLine ) );
+	QString error = "RMS error: ";
+	//if the error is too little, it is quite zero
+	double myerr = mycalcs.rmsError(table, function);
+	if (myerr<pow(10,-10)) myerr = 0.0;
+	error = error +  QString::number(myerr);
+	//QMessageBox::information(this,"RMS error",error) ;
+	double h = uid.ymax->value() - uid.ymin->value();
+	kpol->addPoint(mycalcs.m_xmin+(mycalcs.m_width/50), mycalcs.m_ymax-(h/50), error, 0);
+	//kpol->addPoint(mycalcs.m_xmin+(1), mycalcs.m_ymax-(1), error, 0);
+	uid.kplotwidget->addPlotObject(kpol);
+      }
         //now we can plot the values
         QVarLengthArray<double, 64> px(table->rowCount());
         QVarLengthArray<double, 64> py(table->rowCount());
@@ -162,9 +209,15 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
                 mycalcs.m_bluePlotLatex = mycalcs.m_bluePlotLatex + "(" + QString::number((table->item(i,0)->data(Qt::DisplayRole).toDouble())).replace(QString(","), QString(".")) + "," + QString::number((table->item(i,1)->data(Qt::DisplayRole).toDouble())).replace(QString(","), QString("."))+")";
             }
         }
-        //THIS IS THE PLOT OF BEST FIT CURVE
-        for (int i=int(mycalcs.m_xmin); i<(int(mycalcs.m_xmax)); i++) {
-            double id = i;
+    } 
+ 
+ if ((funz==true) && (function!="")) {
+    //THIS IS THE PLOT OF BEST FIT CURVE
+    double definition = mycalcs.m_resolution;
+    double id = (mycalcs.m_xmin);
+            int totalx = (int(mycalcs.m_xmax-mycalcs.m_xmin)*definition)+1;
+	  //cout << totalx << "|" << endl;
+	for (int i=0; i<totalx; i++) {
             QString mreporto = function;
             QScriptEngine myEngine;
             QByteArray ban = mreporto.toLatin1();
@@ -175,20 +228,18 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
             //now i'm using QScript language to solve the expression
             //in a future we can consider to change it supporting some backends, but it's really complex
             QString myscript = mycalcs.solvex(tmreporto,istr); //myscript is the equation converted in QScript language and with the value of x axis (istr) instead of "x" variable
-            //QString myscript = replacevar(tmreporto,istr, "x"); //myscript is the equation converted in QScript language and with the value of x axis (istr) instead of "x" variable
-	    //if (i==int(mycalcs.m_xmin)) QMessageBox::information(this, "string", mycalcs.solvex(tmreporto,istr));
-            QScriptValue three = myEngine.evaluate(myscript);
+	    QScriptValue three = myEngine.evaluate(myscript);
 
             double tvalue = three.toNumber();
-            if (funz==true) kpog->addPoint(id, tvalue);
+	    if ((tvalue==tvalue) && (tvalue!=log(0)) && (tvalue!=-log(0))) kpog->addPoint((id), (tvalue));  //remember: tvalue == tvalue is needed to check if tvalue is NaN or not, while log(0) is the infinity
             mycalcs.m_greenPlot = mycalcs.m_greenPlot + " " + QString::number((id*10)+5).replace(QString(","), QString(".")) + "," + QString::number((mycalcs.m_ymax-tvalue)*10).replace(QString(","), QString("."));
             mycalcs.m_greenPlotLatex = mycalcs.m_greenPlotLatex + "(" + QString::number(id).replace(QString(","), QString(".")) + "," + QString::number((tvalue)).replace(QString(","), QString("."))+")";
-
+	    id = id + (1/definition);
         }
-    } //here ends the experimental values mode
-
-    uid.kplotwidget->addPlotObject(kpog);
-    uid.kplotwidget->addPlotObject(kpob);
+uid.kplotwidget->addPlotObject(kpog);
+}
+    
+ uid.kplotwidget->addPlotObject(kpob);   
 
     mycalcs.m_bluePlot = mycalcs.m_bluePlot + "\" style=\"stroke:blue;fill:none\"/> ";
     mycalcs.m_greenPlot = mycalcs.m_greenPlot + "\" style=\"stroke:green;fill:none\"/> ";
@@ -219,10 +270,22 @@ void MainWindow::on_ymax_valueChanged(double val)
     drawpl();
 }
 
+void MainWindow::on_resolution_valueChanged(double val)
+{
+    mycalcs.m_resolution = val;
+    drawpl();
+}
+
+void MainWindow::on_maxiters_valueChanged(double val)
+{
+    mycalcs.m_maxIters = long(val);
+}
+
 
 void MainWindow::on_actionNew_triggered()
 {
     //set all the table cells as empty ("")
+    uid.tableWidget->setRowCount(50); 
     for (int i=0; i<uid.tableWidget->rowCount() ; i++) {
         QTableWidgetItem *titem = new QTableWidgetItem ;
         titem->setText("");
@@ -231,13 +294,15 @@ void MainWindow::on_actionNew_triggered()
         titemo->setText("");
         uid.tableWidget->setItem(i,1,titemo);
     }
+    //uid.tableWidget->clearContents();
     uid.function->setText("") ;
     uid.result->setText("") ;
     uid.xmin->setValue(0.00);
     uid.xmax->setValue(50.00);
     uid.ymin->setValue(0.00);
     uid.ymax->setValue(50.00);
-    plot(uid.tableWidget, "",uid.originalplot->isChecked(),uid.fitplot->isChecked());
+    uid.resolution->setValue(1.00);
+    plot(uid.tableWidget, "", uid.originalplot->isChecked(),uid.fitplot->isChecked());
     setCaption("");
 }
 
@@ -303,11 +368,12 @@ void MainWindow::Openfile() {
             QString tempya;
             int tablea = 0;
             int xax = 0;
+	    int res = 0;
             do {
                 texto >> tmpchr;
                 if (tmpchr!='|') tempyval = tempyval + tmpchr;
                 if (tmpchr=='|') {
-                    if ((tablea==1) and (tempyval != QString("table1"))  and (tempyval != QString("function"))  ) {
+                    if ((tablea==1) and (tempyval != QString("table1"))  and (tempyval != QString("function")) and (tempyval != QString("result")) ) {
                         if ((i%2)!=0) {
                             QTableWidgetItem *titemo = uid.tableWidget->item((i-1)/2,1) ;
                             if (titemo) titemo->setText(tempyval) ;
@@ -319,19 +385,31 @@ void MainWindow::Openfile() {
                     }
 
 
-                    if ((xax==1) and (tempyval != QString("table1"))  and (tempyval != QString("function"))  ) {
+                    if ((xax==1) and (tempyval != QString("table1"))  and (tempyval != QString("function")) and (tempyval != QString("result")) ) {
                         uid.function->setText(tempyval);
                         xax = 0;
+                    }
+                    
+                    if ((res==1) and (tempyval != QString("table1"))  and (tempyval != QString("function")) and (tempyval != QString("result"))  ) {
+                        uid.result->setText(tempyval);
+                        res = 0;
                     }
 
                     if (tempyval == QString("table1")) {
                         i=0;
                         tablea=1;
                         xax = 0;
+			res = 0;
                     }
                     if (tempyval == QString("function"))  {
                         tablea=0;
                         xax = 1;
+			res = 0;
+                    }
+                    if (tempyval == QString("result"))  {
+                        tablea=0;
+                        xax = 0;
+			res = 1;
                     }
 
                     tempyval = "";
@@ -346,7 +424,7 @@ void MainWindow::Openfile() {
 void MainWindow::on_actionSave_triggered() {
     if (mycalcs.m_file == "") {
         on_actionSaveAs_triggered();
-        return;
+        exit;
     }
     //save all the cells values
 
@@ -365,6 +443,8 @@ void MainWindow::on_actionSave_triggered() {
     }
     tempyval =  tempyval + QString("\nfunction|");
     tempyval = tempyval + QString("\n") + uid.function->text() + QString("|");
+    tempyval =  tempyval + QString("\nresult|");
+    tempyval = tempyval + QString("\n") + uid.result->text() + QString("|");
 
     tempyval =  tempyval + QString("\nthe end|\n");
 
@@ -388,7 +468,8 @@ void MainWindow::on_actionSaveAs_triggered() {
 }
 void MainWindow::on_actionSvg_triggered() {
     //This function saves the plot into a SVG file
-    QString svgheader = "<?xml version=\"1.0\" encoding=\"iso-8859-1\" standalone=\"no\"?> <!DOCTYPE svg PUBLIC \"-//W3C//Dtd SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/Dtd/svg11.dtd\"> <svg width=\""+ QString::number((mycalcs.m_xmax*10)+5)+ "\" height=\""+ QString::number((mycalcs.m_ymax*10)+5)+ "\"  version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\"><polyline points=\"5," + QString::number(mycalcs.m_ymax*10) + " " + QString::number((mycalcs.m_xmax*10)-5) + "," + QString::number(mycalcs.m_ymax*10) + " " + QString::number((mycalcs.m_xmax*10)-5) + "," + QString::number((mycalcs.m_ymax*10)-5) + " " + QString::number(mycalcs.m_xmax*10) + "," + QString::number(mycalcs.m_ymax*10) + " " + QString::number((mycalcs.m_xmax*10)-5) + "," + QString::number((mycalcs.m_ymax*10)+5) + " " + QString::number((mycalcs.m_xmax*10)-5) + "," + QString::number(mycalcs.m_ymax*10) + "\" style=\"stroke:black;fill:none\"/> <polyline points=\"5," + QString::number(mycalcs.m_ymax*10) + " 5,5 10,5 5,0 0,5 5,5\" style=\"stroke:black;fill:none\"/> ";
+    QString svgheader = "<?xml version=\"1.0\" encoding=\"iso-8859-1\" standalone=\"no\"?> <!DOCTYPE svg PUBLIC \"-//W3C//Dtd SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/Dtd/svg11.dtd\"> <svg width=\""+ QString::number((mycalcs.m_xmax*10)+5)+ "\" height=\""+ QString::number((mycalcs.m_ymax*10)+5)+ "\"  version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\"><polyline points=\"5," + QString::number(mycalcs.m_ymax*10) + " " + QString::number((mycalcs.m_xmax*10)-5) + "," + QString::number(mycalcs.m_ymax*10) + " " + QString::number((mycalcs.m_xmax*10)-5) + "," + QString::number((mycalcs.m_ymax*10)-5) + " " + QString::number(mycalcs.m_xmax*10) + "," + QString::number(mycalcs.m_ymax*10) + " " + QString::number((mycalcs.m_xmax*10)-5) + "," + QString::number((mycalcs.m_ymax*10)+5) + " " + QString::number((mycalcs.m_xmax*10)-5) + "," + QString::number(mycalcs.m_ymax*10) + "\" style=\"stroke:black;fill:none\"/> <polyline points=\"5," + QString::number(mycalcs.m_ymax*10);
+    svgheader += " 5,5 10,5 5,0 0,5 5,5\" style=\"stroke:black;fill:none\"/> ";
     QString svgcomplete = svgheader ;
     if (uid.fitplot->isChecked()) svgcomplete = svgcomplete + mycalcs.m_greenPlot ;
     if (uid.originalplot->isChecked()) svgcomplete = svgcomplete + mycalcs.m_bluePlot;

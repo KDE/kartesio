@@ -17,10 +17,14 @@ public:
 
 private slots:
     void on_pushButton_clicked();
+    void on_pushButton_2_clicked();
+    void on_sort_clicked();
     void on_xmin_valueChanged(double );
     void on_xmax_valueChanged(double );
     void on_ymin_valueChanged(double );
     void on_ymax_valueChanged(double );
+    void on_resolution_valueChanged(double );
+    void on_maxiters_valueChanged(double );
 
     void on_actionNew_triggered();
     void on_fitplot_stateChanged(int );
@@ -32,15 +36,14 @@ private slots:
     void on_actionSaveAs_triggered();
     void on_actionSvg_triggered();
     void on_actionTex_triggered();
+    void drawpl();
 
 private:
     Ui::centralWidget uid;
     Ui::centralWidget *ui;
 
-    void drawpl();
-    void plot(QTableWidget *table, QString function, bool original, bool funz);
+    void plot(QTableWidget* table, QString function, bool original, bool funz);
     void Openfile();
-    //Calculations *mycalcs ;
     Calculations mycalcs ;
 
 

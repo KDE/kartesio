@@ -21,7 +21,9 @@ SET(kartesio_EXECUTABLE
 kde4_add_app_icon(kartesio_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../icons/hi*-app-kartesio.png")
 kde4_add_executable(kartesio ${kartesio_EXECUTABLE})
 
-target_link_libraries(kartesio ${KDE4_KDEUI_LIBS} ${QT_QTSCRIPT_LIBRARIES})
+#target_link_libraries(kartesio ${KDE4_KDEUI_LIBS} ${QT_QTSCRIPT_LIBRARIES} kdeeduui)
+#target_link_libraries(kartesio ${KDE4_KDEUI_LIBS} ${QT_QTSCRIPT_LIBRARIES})
+target_link_libraries(kartesio ${KDE4_KDEUI_LIBS} ${QT_QTSCRIPT_LIBRARIES} zorbaneural)
  
 install(TARGETS kartesio DESTINATION ${BIN_INSTALL_DIR})
 install(FILES kartesioui.rc DESTINATION  ${DATA_INSTALL_DIR}/kartesio)

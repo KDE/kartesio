@@ -10,6 +10,38 @@ Calculations::~Calculations()
     //
 }
 
+double Calculations::rmsError(QTableWidget *table,  QString func) {
+    double rms=0.0;
+    
+    if (!table->item(0,0) || table->item(0,0)->text().isEmpty())
+    {
+        //go on
+    } else {
+      
+      
+      for (int i=0; i<table->rowCount() ; i++) {
+            if (!table->item(i,0) || table->item(i,0)->text().isEmpty()) {
+                break;
+            } else {
+            QScriptEngine myEngine;
+            QByteArray ban = func.toLatin1();
+            char *tmreporto = ban.data();
+
+            QString istr;
+            istr.append(QString("%1").arg((table->item(i,0)->data(Qt::DisplayRole).toDouble())));
+            QString myscript = solvex(tmreporto,istr);
+	    QScriptValue three = myEngine.evaluate(myscript);
+
+            double tvalue = three.toNumber();
+            double diff = table->item(i,1)->data(Qt::DisplayRole).toDouble() - tvalue;
+            rms+= std::pow(diff, 2);
+            }
+        }   
+    }
+    
+    return std::pow((rms/table->rowCount()),0.5);
+}
+
 QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
     //this function calculates the best fit curve from some points and a generic function
     m_resultFunction = "";
@@ -18,6 +50,9 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
     int totalcoeff=0;
     QStringList coeff;
     QString myfunz;
+    std::vector < std::vector <double> > allcoeffs;
+    
+    
     //uid.tableWidget->sortItems(1, Qt::AscendingOrder); //seems that the sorting doesn't work correctly
     if (!table->item(0,0) || table->item(0,0)->text().isEmpty())
     {
@@ -54,8 +89,10 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
         QString tempyn = "";
         tempy = "";
         for (int i=0; strlen(yvalue)+1;i++) {
-            if (!(yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==','or yvalue[i]=='=')) break; //if current value is not a permitted value, this means that something is wrong
-            if (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M') tempyn = tempyn + yvalue[i]; // every letter will be added in the variable tempyn so we can study it
+	  bool test = (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X');
+            if (!(test or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==','or yvalue[i]=='=')) break; //if current value is not a permitted value, this means that something is wrong
+            if (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M') tempyn = tempyn + yvalue[i]; 
+// every letter will be added in the variable tempyn so we can study it
             tempy = "";
             if  (yvalue[i]=='=' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',' ) tempyn = "";
             //use the correct functions
@@ -68,6 +105,12 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
         }
 
         m_tryNumber = 0;
+	
+        allcoeffs.resize(totalcoeff);
+        for (int j=0; j<(totalcoeff);j++) {
+               allcoeffs[j].resize(1);
+        }
+	
         //run the procedure until every point has been used
         for (int f=0; f<(totaldata);f++) {
             //we try to prepare the command line for maxima
@@ -80,11 +123,13 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
                 QByteArray banf = func->text().toLatin1();
                 char *tmfn = banf.data();
                 QString xtmp;
-                xtmp.setNum(px[i%totalcoeff]).replace(QString(","), QString("."));
+                //xtmp.setNum(px[i%totalcoeff]).replace(QString(","), QString("."));
+		xtmp.setNum(px[i%totaldata]).replace(QString(","), QString("."));
                 QString eqa = replacevar(tmfn,xtmp,QString("x"));
                 QByteArray banfn = eqa.toLatin1();
                 char *tmfns = banfn.data();
-                xtmp.setNum(py[i%totalcoeff]).replace(QString(","), QString("."));
+                //xtmp.setNum(py[i%totalcoeff]).replace(QString(","), QString("."));
+		xtmp.setNum(py[i%totaldata]).replace(QString(","), QString("."));
                 QString eq = replacevar(tmfns,xtmp,QString("y"));
                 if (fir==0) cmd = cmd + ","+ eq;
                 if (fir==1) {
@@ -105,7 +150,7 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
             }
             cmd = cmd+"]);\" >> \"/tmp/kartesiotmp.txt\"";
 
-            //run cmd in a linux command line
+            //run cmd in a linux shell
             QByteArray banfc = cmd.toLatin1();
             char *tmc = banfc.data();
             int go = system("rm /tmp/kartesiotmp.txt");
@@ -131,7 +176,6 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
             if (myfunz.indexOf("(%o2)")==-1) return 0;
             QString tempstr = myfunz.split("(%o2)").at(1);
             //we must delete [ and ]
-            //QString cancstr = tempstr.replace(" ","");
             QString cancstr = tempstr.replace("[","");
             cancstr = cancstr.replace("]","");
             if (myfunz.indexOf(",")==-1 and totalcoeff>1) return 0;
@@ -152,28 +196,35 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
                 }
             }
 
+            //at this point, cmvalue contains the values of coefficients, for example the first element could be a=0
 
             myfunz = func->text();
 
             if (good == 1) {
                 for (int u=0; u<totalcoeff; u++) {
+		  int r = 0;
                     for (int n=0; n<cmvalue.count() ; n++) {
                         if (cmvalue.at(n).indexOf("=")!=-1) {
                             QStringList mnval = cmvalue.at(n).split("=");
                             if (mnval.at(0)==coeff.at(u)) {
                                 //now we must sum the new value to the others
-                                QString newvar = mnval.at(1);
+                                //QString newvar = mnval.at(1);
                                 if (m_resultFunction=="") m_resultFunction = myfunz;
                                 if (f!=0 and m_tryNumber!=0) {  //remember that f begins with 0
-                                    QStringList mnvalo = m_oldValue.at(n).split("=");
+                                    //QStringList mnvalo = m_oldValue.at(n).split("=");
                                     //double newval = (((mnvalo.at(1).toDouble()*(f))+mnval.at(1).toDouble())/(f+1));
-                                    double newval = (((mnvalo.at(1).toDouble()*(m_tryNumber))+mnval.at(1).toDouble())/(m_tryNumber+1));
-                                    newvar.setNum(newval);
+                                    //double newval = (((mnvalo.at(1).toDouble()*(m_tryNumber))+mnval.at(1).toDouble())/(m_tryNumber+1));
+                                    //newvar.setNum(newval);
+                                    //int dim = allcoeffs.at(u).size();
+                                    //allcoeffs.at(u).resize(dim+1);
+                                    allcoeffs.at(u).resize(r+1);
+                                    allcoeffs.at(u).at(r) = mnval.at(1).toDouble();
+				    r++;
                                 }
-                                QByteArray banf = m_resultFunction.toLatin1();
-                                char *tmfnz = banf.data();
+                                //QByteArray banf = m_resultFunction.toLatin1();
+                                //char *tmfnz = banf.data();
                                 //myfunz = replacevar(tmfnz,newvar, coeff.at(u));
-                                m_resultFunction = replacevar(tmfnz,newvar, coeff.at(u));
+                                //m_resultFunction = replacevar(tmfnz,newvar, coeff.at(u));
                                 m_tryNumber++;
                             }
                         }
@@ -182,9 +233,229 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
                 m_oldValue = cmvalue;
             }
         } //here ends the search for coefficients values
+        
+        if (m_resultFunction=="") m_resultFunction = myfunz;
+        //mean for every coeff
+	for (int u=0; u<totalcoeff; u++) {
+	  double mean = 0;
+	  for (int r=0; r<allcoeffs.at(u).size(); r++) {
+	     mean += allcoeffs.at(u).at(r);
+	  }
+	  mean = (mean/allcoeffs.at(u).size());
+	  QByteArray banf = m_resultFunction.toLatin1();
+          char *tmfnz = banf.data();
+          m_resultFunction = replacevar(tmfnz,QString::number(mean), coeff.at(u));
+	}
+        
     } //here ends the "else"
     return m_resultFunction;
-    //m_resultFunction = "";
+    m_resultFunction = "";
+}
+
+
+QString Calculations::trainNN(QTableWidget *table,  QComboBox *func, bool backprop, bool genalg)
+{
+    //this function calculates the best fit curve from some points and a generic function
+    m_resultFunction = "";
+    //m_myReport="Values obtained by maxima:\n";
+    m_width = int(m_xmax - m_xmin);
+    int totalcoeff=0;
+    //QStringList coeff;
+    QString myfunz;
+    std::vector<int> lSzV;
+    int layers = 2;
+    QString myresult = "";
+    
+    
+    std::vector < std::vector <double> > dataV;
+    
+    //now we need to know wich function has been selected
+    
+    //uid.tableWidget->sortItems(1, Qt::AscendingOrder); //seems that the sorting doesn't work correctly
+    if (!table->item(0,0) || table->item(0,0)->text().isEmpty())
+    {
+        //go on
+    } else {
+      
+     if (func->currentText() == "y=m*x+q") { 
+      totalcoeff = 2;
+        dataV.resize(table->rowCount());
+        for (int j=0; j<(table->rowCount());j++) {
+            dataV[j].resize(totalcoeff+1);
+        }
+        for (int i=0; i<table->rowCount() ; i++) {
+            if (!table->item(i,0) || table->item(i,0)->text().isEmpty()) {
+                break;
+            } else {
+                dataV[i][0] = table->item(i,0)->data(Qt::DisplayRole).toDouble();  //x
+		dataV[i][1] = 1;  
+		dataV[i][2] = table->item(i,1)->data(Qt::DisplayRole).toDouble();  //y
+            }
+        }
+    }
+    
+    if (func->currentText() == "y=a*(x^2)+b*x+c") { 
+      totalcoeff = 3;
+        dataV.resize(table->rowCount());
+        for (int j=0; j<(table->rowCount());j++) {
+            dataV[j].resize(totalcoeff+1);
+        }
+        for (int i=0; i<table->rowCount() ; i++) {
+            if (!table->item(i,0) || table->item(i,0)->text().isEmpty()) {
+                break;
+            } else {
+	        dataV[i][0] = pow(table->item(i,0)->data(Qt::DisplayRole).toDouble(), 2);  //x^2
+                dataV[i][1] = table->item(i,0)->data(Qt::DisplayRole).toDouble();  //x
+		dataV[i][2] = 1;  
+		dataV[i][3] = table->item(i,1)->data(Qt::DisplayRole).toDouble();  //y
+            }
+        }
+    }
+    
+    if (func->currentText() == "y=a*(x^3)+b*(x^2)+c*x+d") { 
+      totalcoeff = 4;
+        dataV.resize(table->rowCount());
+        for (int j=0; j<(table->rowCount());j++) {
+            dataV[j].resize(totalcoeff+1);
+        }
+        for (int i=0; i<table->rowCount() ; i++) {
+            if (!table->item(i,0) || table->item(i,0)->text().isEmpty()) {
+                break;
+            } else {
+	        dataV[i][0] = pow(table->item(i,0)->data(Qt::DisplayRole).toDouble(), 3);  //x^3
+	        dataV[i][1] = pow(table->item(i,0)->data(Qt::DisplayRole).toDouble(), 2);  //x^2
+                dataV[i][2] = table->item(i,0)->data(Qt::DisplayRole).toDouble();  //x
+		dataV[i][3] = 1;  
+		dataV[i][4] = table->item(i,1)->data(Qt::DisplayRole).toDouble();  //y
+            }
+        }
+    }
+    
+    if (func->currentText() == "y=a*(x^4)+b*(x^3)+c*(x^2)+d*x+e") { 
+      totalcoeff = 5;
+        dataV.resize(table->rowCount());
+        for (int j=0; j<(table->rowCount());j++) {
+            dataV[j].resize(totalcoeff+1);
+        }
+        for (int i=0; i<table->rowCount() ; i++) {
+            if (!table->item(i,0) || table->item(i,0)->text().isEmpty()) {
+                break;
+            } else {
+	        dataV[i][0] = pow(table->item(i,0)->data(Qt::DisplayRole).toDouble(), 4);  //x^4
+	        dataV[i][1] = pow(table->item(i,0)->data(Qt::DisplayRole).toDouble(), 3);  //x^3
+	        dataV[i][2] = pow(table->item(i,0)->data(Qt::DisplayRole).toDouble(), 2);  //x^2
+                dataV[i][3] = table->item(i,0)->data(Qt::DisplayRole).toDouble();  //x
+		dataV[i][4] = 1;  
+		dataV[i][5] = table->item(i,1)->data(Qt::DisplayRole).toDouble();  //y
+            }
+        }
+    }
+    
+    if (func->currentText() == "y=a*(e^x)+c") { 
+      totalcoeff = 2;
+        dataV.resize(table->rowCount());
+        for (int j=0; j<(table->rowCount());j++) {
+            dataV[j].resize(totalcoeff+1);
+        }
+        for (int i=0; i<table->rowCount() ; i++) {
+            if (!table->item(i,0) || table->item(i,0)->text().isEmpty()) {
+                break;
+            } else {
+                dataV[i][0] = exp(table->item(i,0)->data(Qt::DisplayRole).toDouble());  //exp(x)
+		dataV[i][1] = 1;  
+		dataV[i][2] = table->item(i,1)->data(Qt::DisplayRole).toDouble();  //y
+            }
+        }
+    }
+    
+    if (func->currentText() == "y=a*ln(x)+c") { 
+      totalcoeff = 2;
+        dataV.resize(table->rowCount());
+        for (int j=0; j<(table->rowCount());j++) {
+            dataV[j].resize(totalcoeff+1);
+        }
+        for (int i=0; i<table->rowCount() ; i++) {
+            if (!table->item(i,0) || table->item(i,0)->text().isEmpty()) {
+                break;
+            } else {
+                dataV[i][0] = log(table->item(i,0)->data(Qt::DisplayRole).toDouble());  //ln(x)
+		dataV[i][1] = 1;  
+		dataV[i][2] = table->item(i,1)->data(Qt::DisplayRole).toDouble();  //y
+            }
+        }
+    }
+    
+    
+   if (func->currentText() == "y=(a/x)+b") { 
+      totalcoeff = 2;
+        dataV.resize(table->rowCount());
+        for (int j=0; j<(table->rowCount());j++) {
+            dataV[j].resize(totalcoeff+1);
+        }
+        for (int i=0; i<table->rowCount() ; i++) {
+            if (!table->item(i,0) || table->item(i,0)->text().isEmpty()) {
+                break;
+            } else {
+                dataV[i][0] = (1/(table->item(i,0)->data(Qt::DisplayRole).toDouble()));  //1/x
+		dataV[i][1] = 1;  
+		dataV[i][2] = table->item(i,1)->data(Qt::DisplayRole).toDouble();  //y
+            }
+        }
+    }
+    
+    lSzV.resize(layers);
+    lSzV[0] = (totalcoeff-1);
+    lSzV[1] = 1;
+    
+    //this is the common zorba neural network definition    
+
+    double learningRate = 0.1;
+    double momentum = 0.1;
+    //long maxIters = 2000000;
+    int maxCrossoverNumber = 200;
+
+    ZorbaNN *myNet = new ZorbaNN(layers, lSzV, learningRate, momentum);
+        myNet->minAcceptableError = pow(10,-4);
+	if (backprop==true) myNet->recursiveTrainBackProp(dataV, m_maxIters);
+	if (genalg==true) myNet->recursiveTrainGenAlg(dataV, m_maxIters, maxCrossoverNumber);
+	
+	myresult = "y=";
+	
+	for (int f = 0; f<totalcoeff; f++) {
+    //print the result: the number of weights is totalcoeff
+    double temp = (1/(1+exp(-(myNet->getWeight(1,0,f)))));
+    std::ostringstream strs;
+    strs << std::fixed << std::setprecision(6) << temp;
+    myresult = myresult + QString(strs.str().c_str());
+    QString vars = "";
+    if (func->currentText() == "y=m*x+q" && f == 0) vars = "*x+";
+    
+    if (func->currentText() == "y=a*(x^2)+b*x+c" && f == 0) vars = "*(x^2)+";
+    if (func->currentText() == "y=a*(x^2)+b*x+c" && f == 1) vars = "*x+";
+    
+    if (func->currentText() == "y=a*(x^3)+b*(x^2)+c*x+d" && f == 0) vars = "*(x^3)+";
+    if (func->currentText() == "y=a*(x^3)+b*(x^2)+c*x+d" && f == 1) vars = "*(x^2)+";
+    if (func->currentText() == "y=a*(x^3)+b*(x^2)+c*x+d" && f == 2) vars = "*x+";
+    
+    if (func->currentText() == "y=a*(x^4)+b*(x^3)+c*(x^2)+d*x+e" && f == 0) vars = "*(x^4)+";
+    if (func->currentText() == "y=a*(x^4)+b*(x^3)+c*(x^2)+d*x+e" && f == 1) vars = "*(x^3)+";
+    if (func->currentText() == "y=a*(x^4)+b*(x^3)+c*(x^2)+d*x+e" && f == 2) vars = "*(x^2)+";
+    if (func->currentText() == "y=a*(x^4)+b*(x^3)+c*(x^2)+d*x+e" && f == 3) vars = "*x+";
+    
+    if (func->currentText() == "y=a*(e^x)+c" && f == 0) vars = "*exp(x)+";
+    
+    if (func->currentText() == "y=a*ln(x)+c" && f == 0) vars = "*ln(x)+";
+    
+    if (func->currentText() == "y=(a/x)+b" && f == 0) vars = "/x+";
+    
+    myresult = myresult + vars;
+	}
+    
+        
+    } //here ends the "else"
+    
+    return myresult;
+    m_resultFunction = "";
 }
 
 QString Calculations::solvex(char *yvalue, QString dnum) {
@@ -206,8 +477,11 @@ QString Calculations::solvex(char *yvalue, QString dnum) {
     QString tempyval;
     tempy = "";
     for (int i=0; strlen(yvalue)+1;i++) {
-        if (!(yvalue[i]=='=' or yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',')) break; //if current value is not a permitted value, this means that something is wrong
-        if (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M') tempyn = tempyn + yvalue[i]; // every letter will be added in the variable tempyn so we can study it
+      bool test = (yvalue[i]=='=' or yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C')
+;
+        if (!(test or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',')) break; //if current value is not a permitted value, this means that something is wrong
+        if (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M') tempyn = tempyn + yvalue[i]; 
+// every letter will be added in the variable tempyn so we can study it
         tempy = "";
         if  (yvalue[i]=='=' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',' ) tempyn = "";
         if (tempyn=="x") tempy=dnum; //replace every x with the correct numerical value
@@ -282,8 +556,10 @@ QString Calculations::replacevar(char *yvalue, QString dnum, QString var) {
     QString tempyval;
     tempy = "";
     for (int i=0; strlen(yvalue)+1;i++) {
-        if (!(yvalue[i]=='=' or yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',')) break; //if current value is not a permitted value, this means that something is wrong
-        if (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M') tempyn = tempyn + yvalue[i]; // every letter will be added in the variable tempyn so we can study it
+      bool test = (yvalue[i]=='=' or yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' );
+        if (!(test or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',')) break; //if current value is not a permitted value, this means that something is wrong
+        if (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M') tempyn = tempyn + yvalue[i]; 
+// every letter will be added in the variable tempyn so we can study it
         tempy = "";
         if  (yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',' ) tempyn = "";
         if  ((yvalue[i+1]=='+' or yvalue[i+1]=='=' or yvalue[i+1]=='-' or yvalue[i+1]=='*' or yvalue[i+1]=='^' or yvalue[i+1]=='/' or yvalue[i+1]=='(' or yvalue[i+1]==')' or yvalue[i+1]=='1' or yvalue[i+1]=='2' or yvalue[i+1]=='3' or yvalue[i+1]=='4' or yvalue[i+1]=='5' or yvalue[i+1]=='6' or yvalue[i+1]=='7' or yvalue[i+1]=='8' or yvalue[i+1]=='9' or yvalue[i+1]=='0' or yvalue[i+1]=='.' or yvalue[i+1]==' ' or yvalue[i+1]==',' or yvalue[i+1]=='=' or (i+1)==(strlen(yvalue))) ) {
