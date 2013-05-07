@@ -1,0 +1,68 @@
+<?xml version="1.0" ?>
+<!DOCTYPE refentry PUBLIC "-//KDE//DTD DocBook XML V4.2-Based Variant V1.1//EN" "dtd/kdex.dtd" [
+<!ENTITY % English "INCLUDE">
+]>
+
+<refentry lang="&language;">
+<refentryinfo>
+<author><personname><firstname>Luca</firstname><surname>Tringali</surname></personname></author>
+<date>2013-05-07</date>
+</refentryinfo>
+
+<refmeta>
+<refentrytitle><command>kartesio</command></refentrytitle>
+<manvolnum>1</manvolnum>
+</refmeta>
+
+<refnamediv>
+<refname><command>kartesio</command></refname>
+<refpurpose>A KDE based data analisys tool.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>kartesio</command>
+
+<group><option>KDE Generic Options</option></group>
+<group><option>Qt Generic Options</option></group>
+
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Description</title>
+
+ <para>Kartesio is a program for calculating best fit curves with 
+experimental points using regression algorithms or neural networks.
+</para>
+
+<para>Kartesio has a simple interface that allows you to plot points 
+and a curve. The curve can be calculated by the program or you can also
+write it by yourself.</para>
+
+<para>This package is part of the official KDE edutainment module. </para> 
+
+</refsect1>
+
+<refsect1>
+<title>See Also</title>
+
+<para>More detailed user documentation is available from <ulink
+url="help:/kartesio">help:/kartesio</ulink> (either enter this
+<acronym>URL</acronym> into &konqueror;, or run
+<userinput><command>khelpcenter</command>
+<parameter>help:/kartesio</parameter></userinput>).</para>
+
+
+</refsect1>
+
+<refsect1>
+<title>Authors</title>
+
+<para>Kartesio was written by Luca Tringali - TRINGALINVENT@libero.it </para>
+
+<para>This manual page was prepared by <personname><firstname>Luca</firstname><surname>Tringali</surname></personname></para>
+
+</refsect1>
+
+</refentry>

@@ -1,7 +1,10 @@
 project(kartesio)
  
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake-mod/")
+ 
 find_package(KDE4 REQUIRED)
 find_package( Qt4 REQUIRED )
+find_package(zorbaneural REQUIRED)
 add_definitions(${KDE4_DEFINITIONS} ${QT_DEFINITIONS})
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES}  ${KDE4_INCLUDE_DIR} ${QT_INCLUDES} )
 
@@ -19,3 +22,4 @@ message(STATUS "using oxygen application icons from ${KDE4_ICON_DIR}")
 
 add_subdirectory(src)
 add_subdirectory(icons)
+add_subdirectory(doc)

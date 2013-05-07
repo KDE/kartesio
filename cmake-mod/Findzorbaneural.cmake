@@ -1,0 +1,33 @@
+#locate libzorbaneural library
+
+# This module defines
+#  LIBZORBANEURAL_LIBRARY
+#  LIBZORBANEURAL_FOUND
+#  LIBZORBANEURAL_INCLUDE_DIR
+#  LIBZORBANEURAL_CFLAGS
+#  LIBZORBANEURAL_LINKFLAGS
+
+
+IF(LIBZORBANEURAL_LIBRARY AND LIBZORBANEURAL_INCLUDE_DIR)
+	SET(LIBZORBANEURAL_FOUND TRUE)
+ELSE(LIBZORBANEURAL_LIBRARY AND LIBZORBANEURAL_INCLUDE_DIR)
+	INCLUDE(UsePkgConfig)
+	PKGCONFIG("libzorbaneural" _libzorbaneuralIncDir _libzorbaneuralLibDir _libzorbaneuralLinkFlags _libzorbaneuralCflags)
+
+	# set additional flags needed to compile/link against libzorbaneural
+	SET(LIBZORBANEURAL_CFLAGS ${_libzorbaneuralCFlags} CACHE STRING "CFLAGS required for libzorbaneural")
+	SET(LIBZORBANEURAL_LINKFLAGS ${_libzorbaneuralLinkFlags} CACHE STRING "Flags used for linking against libzorbaneural")
+
+	# search for include and library path
+	FIND_PATH(LIBZORBANEURAL_INCLUDE_DIR libzorbaneural/neuralnet.h PATHS ${_libzorbaneuralIncDir} ${_libzorbaneuralIncDir}/libzorbaneural)
+	FIND_LIBRARY(LIBZORBANEURAL_LIBRARY zorbaneural PATHS ${_libzorbaneuralLibDir})
+
+	IF(LIBZORBANEURAL_INCLUDE_DIR AND LIBZORBANEURAL_LIBRARY)
+		SET(LIBZORBANEURAL_FOUND TRUE)
+		MESSAGE(STATUS "Found libzorbaneural: ${LIBZORBANEURAL_LIBRARY}")
+
+	ELSE(LIBZORBANEURAL_INCLUDE_DIR AND LIBZORBANEURAL_LIBRARY)
+		SET(LIBZORBANEURAL_FOUND FALSE)
+		MESSAGE(SEND_ERROR "Could NOT find libzorbaneural")
+	ENDIF(LIBZORBANEURAL_INCLUDE_DIR AND LIBZORBANEURAL_LIBRARY)
+ENDIF(LIBZORBANEURAL_LIBRARY AND LIBZORBANEURAL_INCLUDE_DIR)

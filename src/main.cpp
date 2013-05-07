@@ -8,10 +8,10 @@
 
 #include "mainwindow.h"
 
-#define APP_VERSION "0.9.80"
+#define APP_VERSION "0.1.00"
 
 static const char description[] =
-    I18N_NOOP("A program to calculate best fit curves");
+    I18N_NOOP("A program for calculating best fit curves with experimental points.");
 
 static const char version[] = APP_VERSION;
 
@@ -19,7 +19,7 @@ static const char version[] = APP_VERSION;
 int main(int argc, char *argv[])
 {
 
-    KAboutData about("kartesio", 0, ki18n("Kartesio"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2010-2011 Luca Tringali"), KLocalizedString(), "http://edu.kde.org/kartesio");
+    KAboutData about("kartesio", 0, ki18n("Kartesio"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2011-2013 Luca Tringali"), KLocalizedString(), "https://projects.kde.org/projects/playground/edu/kartesio");
     about.addAuthor( ki18n("Luca Tringali"), KLocalizedString(), "TRINGALINVENT@libero.it" );
     //about.addCredit(ki18n("your name here"),ki18n("What you have done"));
 
