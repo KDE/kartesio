@@ -1,3 +1,28 @@
+/***************************************************************************
+ *   Kartesio is a program for calculating best fit curves with            * 
+ *   experimental points using regression algorithms or neural networks.   *
+ *                                                                         *
+ *                   Kartesio has been created by                          *
+ *                Luca Tringali, TRINGALINVENT@libero.it                   *
+ *                                                                         *
+ *                    Copyright 2011-2013 Luca Tringali                    *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 3 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+ ***************************************************************************/
+
 #include "calculations.h"
 
 Calculations::Calculations()
@@ -96,7 +121,7 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
             tempy = "";
             if  (yvalue[i]=='=' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',' ) tempyn = "";
             //use the correct functions
-            if (!(tempyn=="" or tempyn=="cos" or tempyn=="sin" or tempyn=="y" or tempyn=="x" or tempyn=="tan" or tempyn=="cot" or tempyn=="exp" or tempyn=="abs" or tempyn=="acos" or tempyn=="atan" or tempyn=="atan2" or tempyn=="asin" or tempyn=="ceil" or tempyn=="floor" or tempyn=="log" or tempyn=="ln" or tempyn=="max" or tempyn=="min" or tempyn=="random" or tempyn=="round" or tempyn=="sqrt")) {
+            if (!(tempyn.isEmpty() or tempyn=="cos" or tempyn=="sin" or tempyn=="y" or tempyn=="x" or tempyn=="tan" or tempyn=="cot" or tempyn=="exp" or tempyn=="abs" or tempyn=="acos" or tempyn=="atan" or tempyn=="atan2" or tempyn=="asin" or tempyn=="ceil" or tempyn=="floor" or tempyn=="log" or tempyn=="ln" or tempyn=="max" or tempyn=="min" or tempyn=="random" or tempyn=="round" or tempyn=="sqrt")) {
                 if  ((yvalue[i+1]=='+' or yvalue[i+1]=='=' or yvalue[i+1]=='-' or yvalue[i+1]=='*' or yvalue[i+1]=='^' or yvalue[i+1]=='/' or yvalue[i+1]=='(' or yvalue[i+1]==')' or yvalue[i+1]=='1' or yvalue[i+1]=='2' or yvalue[i+1]=='3' or yvalue[i+1]=='4' or yvalue[i+1]=='5' or yvalue[i+1]=='6' or yvalue[i+1]=='7' or yvalue[i+1]=='8' or yvalue[i+1]=='9' or yvalue[i+1]=='0' or yvalue[i+1]=='.' or yvalue[i+1]==' ' or yvalue[i+1]==',' or yvalue[i+1]=='=' or (i+1)==(strlen(yvalue))) ) {
                     coeff.append(tempyn);
                     totalcoeff++;
@@ -131,7 +156,7 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
                 //xtmp.setNum(py[i%totalcoeff]).replace(QString(","), QString("."));
 		xtmp.setNum(py[i%totaldata]).replace(QString(","), QString("."));
                 QString eq = replacevar(tmfns,xtmp,QString("y"));
-                if (fir==0) cmd = cmd + ","+ eq;
+                if (fir==0) cmd = cmd + ','+ eq;
                 if (fir==1) {
                     cmd = cmd + eq;
                     fir = 0;
@@ -142,7 +167,7 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
             cmd = cmd+"],[";
             fir= 1;
             for (int u=0; u<totalcoeff; u++) {
-                if (fir==0) cmd = cmd + ","+coeff.at(u);
+                if (fir==0) cmd = cmd + ','+coeff.at(u);
                 if (fir==1) {
                     cmd = cmd + coeff.at(u);
                     fir = 0;
@@ -176,11 +201,11 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
             if (myfunz.indexOf("(%o2)")==-1) return 0;
             QString tempstr = myfunz.split("(%o2)").at(1);
             //we must delete [ and ]
-            QString cancstr = tempstr.replace("[","");
-            cancstr = cancstr.replace("]","");
+            QString cancstr = tempstr.replace('[','');
+            cancstr = cancstr.replace(']','');
             if (myfunz.indexOf(",")==-1 and totalcoeff>1) return 0;
-            QStringList cmvalue = cancstr.split(",");
-            m_myReport = m_myReport + cancstr+ "\n";
+            QStringList cmvalue = cancstr.split(',');
+            m_myReport = m_myReport + cancstr+ '\n';
             //ignore the result if it is not a correct number
             int good = 1;
             for (int u=0; u<totalcoeff; u++) {
@@ -189,7 +214,7 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
                         break;
                         good = 0;
                     }
-                    QStringList mnval = cmvalue.at(n).split("=");
+                    QStringList mnval = cmvalue.at(n).split('=');
                     QScriptEngine myEnginee;
                     QScriptValue isreal = myEnginee.evaluate(mnval.at(1)+"*0");
                     if (isreal.toString()!="0") good = 0;
@@ -205,7 +230,7 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
 		  int r = 0;
                     for (int n=0; n<cmvalue.count() ; n++) {
                         if (cmvalue.at(n).indexOf("=")!=-1) {
-                            QStringList mnval = cmvalue.at(n).split("=");
+                            QStringList mnval = cmvalue.at(n).split('=');
                             if (mnval.at(0)==coeff.at(u)) {
                                 //now we must sum the new value to the others
                                 //QString newvar = mnval.at(1);
@@ -512,7 +537,7 @@ QString Calculations::solvex(char *yvalue, QString dnum) {
 	    i++;
 	    tempy = tempy + yvalue[i];
 	  }while ((QString(yvalue[i+1])!=QString("*")));//until i+1=="*"
-	  tempy = tempy + ")";
+	  tempy = tempy + ')';
 	}
         //the simbol ^ should be replaced by Math.pow(base, exp)
         if (olda==1) {
@@ -530,7 +555,7 @@ QString Calculations::solvex(char *yvalue, QString dnum) {
             if (yvalue[i]=='^') {
                 olda =1;
             }
-            if ((yvalue[i+1]!='^') and (yvalue[i]!='^') and (tempy!="")) {
+            if ((yvalue[i+1]!='^') and (yvalue[i]!='^') and !(tempy.isEmpty())) {
                 tempyval = tempyval + tempy;
                 tempy ="";
             }
