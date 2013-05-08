@@ -269,7 +269,7 @@ QString Calculations::trainNN(QTableWidget *table,  QComboBox *func, bool backpr
     
     std::vector < std::vector <double> > dataV;
     
-    //now we need to know wich function has been selected
+    //now we need to know which function has been selected
     
     //uid.tableWidget->sortItems(1, Qt::AscendingOrder); //seems that the sorting doesn't work correctly
     if (!table->item(0,0) || table->item(0,0)->text().isEmpty())
