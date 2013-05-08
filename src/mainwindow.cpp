@@ -147,7 +147,7 @@ void MainWindow::on_sort_clicked()
 void MainWindow::on_pushButton_clicked()
 {
     QString value = mycalcs.calculate(uid.tableWidget,  uid.function);
-    if  (value==QString("died")) KMessageBox::error(this,"Error","Seems that Maxima process died calculating the result.") ;
+    if  (value==QString("died")) KMessageBox::error(this,i18n("Error"),i18n("Seems that Maxima process died calculating the result.")) ;
     if  (value!=QString("died")) {
         uid.result->setText(value);
         drawpl();
@@ -195,7 +195,7 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
       if (uid.showerror->isChecked() && !(function.isEmpty())) {
 	KPlotObject *kpol = new KPlotObject( Qt::white, KPlotObject::Points );
 	kpol->setLabelPen(QPen( Qt::red, 3.0, Qt::SolidLine ) );
-	QString error = "RMS error: ";
+	QString error = i18n("RMS error: ");
 	//if the error is too little, it is quite zero
 	double myerr = mycalcs.rmsError(table, function);
 	if (myerr<pow(10,-10)) myerr = 0.0;
@@ -352,7 +352,7 @@ void MainWindow::on_actionShow_example_triggered()
 }
 
 void MainWindow::on_actionOpen_triggered() {
-    mycalcs.m_file = KFileDialog::getOpenFileName(KUrl(), "*.kartesio|Kartesio File (*.kartesio)", this, "Open work"); //     getOpenFileName(this,"Open work","","Kartesio File (*.kartesio)");
+    mycalcs.m_file = KFileDialog::getOpenFileName(KUrl(), "*.kartesio|Kartesio File (*.kartesio)", this, i18n("Open work")); //     getOpenFileName(this,"Open work","","Kartesio File (*.kartesio)");
     Openfile();
 }
 
@@ -369,7 +369,7 @@ void MainWindow::Openfile() {
         QByteArray bac = mycalcs.m_file.toLatin1();
         char *filec = bac.data();
         ifstream texto(filec);
-        if (!texto) KMessageBox::error(this,"Error","Unable to open "+mycalcs.m_file) ;
+        if (!texto) KMessageBox::error(this,i18n("Error"),i18n("Unable to open ")+mycalcs.m_file) ;
         if (texto) {
             on_actionNew_triggered();
             QString tempyval;
@@ -465,14 +465,14 @@ void MainWindow::on_actionSave_triggered() {
         char *filec = bac.data();
 
         ofstream out(filec);
-        if (!out) KMessageBox::error(this,"Error","Unable to create "+mycalcs.m_file) ;
+        if (!out) KMessageBox::error(this,i18n("Error"),i18n("Unable to create ")+mycalcs.m_file) ;
         out << strsave;
         out.close();
     }
 }
 void MainWindow::on_actionSaveAs_triggered() {
     //save as
-    mycalcs.m_file = KFileDialog::getSaveFileName(KUrl(), "*.kartesio|Kartesio File (*.kartesio)", this, "Save work"); //"*.cpp|Sources (*.cpp)" (this,"Save work","","Kartesio File (*.kartesio)");
+    mycalcs.m_file = KFileDialog::getSaveFileName(KUrl(), "*.kartesio|Kartesio File (*.kartesio)", this, i18n("Save work")); //"*.cpp|Sources (*.cpp)" (this,"Save work","","Kartesio File (*.kartesio)");
     setCaption(mycalcs.m_file);
     on_actionSave_triggered();
 }
@@ -485,7 +485,7 @@ void MainWindow::on_actionSvg_triggered() {
     if (uid.originalplot->isChecked()) svgcomplete = svgcomplete + mycalcs.m_bluePlot;
     svgcomplete = svgcomplete + "</svg> ";
 
-    QString files = KFileDialog::getSaveFileName(KUrl(), "*.svg|Svg image (*.svg)", this, "Save plot"); //(this,"Save plot","","Svg image (*.svg)");
+    QString files = KFileDialog::getSaveFileName(KUrl(), "*.svg|Svg image (*.svg)", this, i18n("Save plot")); //(this,"Save plot","","Svg image (*.svg)");
     if (!(files.isEmpty())) {
         QByteArray svgt = svgcomplete.toLatin1();
         char *strsave = svgt.data();
@@ -493,7 +493,7 @@ void MainWindow::on_actionSvg_triggered() {
         char *filec = ban.data();
 
         ofstream out(filec);
-        if (!out) KMessageBox::error(this,"Error","Unable to create "+files) ;
+        if (!out) KMessageBox::error(this,i18n("Error"),i18n("Unable to create ")+files) ;
         out << strsave;
         out.close();
     }
@@ -507,7 +507,7 @@ void MainWindow::on_actionTex_triggered() {
     if (uid.originalplot->isChecked()) texcomplete = texcomplete + '\n' + mycalcs.m_bluePlotLatex;
     texcomplete = texcomplete + QString(" \n \\[ ") + uid.result->text() + QString(" \\] \n \\end{document} ");
 
-    QString files = KFileDialog::getSaveFileName(KUrl(), "*.tex|Latex document (*.tex)", this, "Save plot"); //getSaveFileName(this,"Save plot","","Latex document (*.tex)");
+    QString files = KFileDialog::getSaveFileName(KUrl(), "*.tex|Latex document (*.tex)", this, i18n("Save plot")); //getSaveFileName(this,"Save plot","","Latex document (*.tex)");
     if (!(files.isEmpty())) {
         QByteArray tex = texcomplete.toLatin1();
         char *strsave = tex.data();
@@ -515,10 +515,10 @@ void MainWindow::on_actionTex_triggered() {
         char *filec = ban.data();
 
         ofstream out(filec);
-        if (!out) KMessageBox::error(this,"Error","Unable to create "+files) ;
+        if (!out) KMessageBox::error(this,i18n("Error"),i18n("Unable to create ")+files) ;
         out << strsave;
         out.close();
-        if (out) KMessageBox::information(this,"Well done","Please take note that you can't use pdflatex to convert this file directly into a pdf file. You can convert it only into dvi,and then will be possible to create a pdf.") ;
+        if (out) KMessageBox::information(this,i18n("Well done"),i18n("Please take note that you can't use pdflatex to convert this file directly into a pdf file. You can convert it only into dvi,and then will be possible to create a pdf.")) ;
     }
 
 }

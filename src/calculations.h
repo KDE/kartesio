@@ -40,28 +40,27 @@
 #include "QtGui/QLineEdit"
 #include "QtCore/QString"
 #include "QtCore/QStringList"
-#include <QtGui/QFileDialog>
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValue>
 #include <QtScript/QScriptClass>
 #include <QtCore/QVarLengthArray>
-#include <QtGui/QMessageBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QTableWidgetItem>
 #include <KMessageBox>
 #include <KFileDialog>
 
-#include "kplotwidget.h"
-#include "kplotaxis.h"
-#include "kplotobject.h"
-#include "kplotpoint.h"
-#include <kdebug.h>
-#include "kaction.h"
-#include "klocale.h"
-#include "kactioncollection.h"
-#include "kstandardaction.h"
-#include "kapplication.h"
-#include "kxmlguiwindow.h"
+#include <KPlotWidget>
+#include <KPlotAxis>
+#include <KPlotObject>
+#include <KPlotPoint>
+#include <KDebug>
+#include <KAction>
+#include <KLocale>
+#include <KActionCollection>
+#include <KStandardAction>
+#include <KApplication>
+#include <KXmlGuiWindow>
+#include <KLocalizedString>
 
 #include <libzorbaneural/neuralnet.h>
 
