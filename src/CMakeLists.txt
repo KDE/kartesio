@@ -23,7 +23,7 @@ kde4_add_executable(kartesio ${kartesio_EXECUTABLE})
 
 #target_link_libraries(kartesio ${KDE4_KDEUI_LIBS} ${QT_QTSCRIPT_LIBRARIES} kdeeduui)
 #target_link_libraries(kartesio ${KDE4_KDEUI_LIBS} ${QT_QTSCRIPT_LIBRARIES})
-target_link_libraries(kartesio ${KDE4_KDEUI_LIBS} ${QT_QTSCRIPT_LIBRARIES} zorbaneural)
+target_link_libraries(kartesio ${KDE4_KDEUI_LIBS} ${QT_QTSCRIPT_LIBRARIES} ${KDE4_KIO_LIBS} zorbaneural)
  
 install(TARGETS kartesio DESTINATION ${BIN_INSTALL_DIR})
 install(FILES kartesioui.rc DESTINATION  ${DATA_INSTALL_DIR}/kartesio)

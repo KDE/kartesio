@@ -201,8 +201,8 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
             if (myfunz.indexOf("(%o2)")==-1) return 0;
             QString tempstr = myfunz.split("(%o2)").at(1);
             //we must delete [ and ]
-            QString cancstr = tempstr.replace('[','');
-            cancstr = cancstr.replace(']','');
+            QString cancstr = tempstr.replace("[","");
+            cancstr = cancstr.replace("]","");
             if (myfunz.indexOf(",")==-1 and totalcoeff>1) return 0;
             QStringList cmvalue = cancstr.split(',');
             m_myReport = m_myReport + cancstr+ '\n';

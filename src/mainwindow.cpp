@@ -352,7 +352,7 @@ void MainWindow::on_actionShow_example_triggered()
 }
 
 void MainWindow::on_actionOpen_triggered() {
-    mycalcs.m_file = KFileDialog::getOpenFileName(this,"Open work","","Kartesio File (*.kartesio)");
+    mycalcs.m_file = KFileDialog::getOpenFileName(KUrl(), "*.kartesio|Kartesio File (*.kartesio)", this, "Open work"); //     getOpenFileName(this,"Open work","","Kartesio File (*.kartesio)");
     Openfile();
 }
 
@@ -472,7 +472,7 @@ void MainWindow::on_actionSave_triggered() {
 }
 void MainWindow::on_actionSaveAs_triggered() {
     //save as
-    mycalcs.m_file = KFileDialog::getSaveFileName(this,"Save work","","Kartesio File (*.kartesio)");
+    mycalcs.m_file = KFileDialog::getSaveFileName(KUrl(), "*.kartesio|Kartesio File (*.kartesio)", this, "Save work"); //"*.cpp|Sources (*.cpp)" (this,"Save work","","Kartesio File (*.kartesio)");
     setCaption(mycalcs.m_file);
     on_actionSave_triggered();
 }
@@ -485,7 +485,7 @@ void MainWindow::on_actionSvg_triggered() {
     if (uid.originalplot->isChecked()) svgcomplete = svgcomplete + mycalcs.m_bluePlot;
     svgcomplete = svgcomplete + "</svg> ";
 
-    QString files = KFileDialog::getSaveFileName(this,"Save plot","","Svg image (*.svg)");
+    QString files = KFileDialog::getSaveFileName(KUrl(), "*.svg|Svg image (*.svg)", this, "Save plot"); //(this,"Save plot","","Svg image (*.svg)");
     if (!(files.isEmpty())) {
         QByteArray svgt = svgcomplete.toLatin1();
         char *strsave = svgt.data();
@@ -507,7 +507,7 @@ void MainWindow::on_actionTex_triggered() {
     if (uid.originalplot->isChecked()) texcomplete = texcomplete + '\n' + mycalcs.m_bluePlotLatex;
     texcomplete = texcomplete + QString(" \n \\[ ") + uid.result->text() + QString(" \\] \n \\end{document} ");
 
-    QString files = KFileDialog::getSaveFileName(this,"Save plot","","Latex document (*.tex)");
+    QString files = KFileDialog::getSaveFileName(KUrl(), "*.tex|Latex document (*.tex)", this, "Save plot"); //getSaveFileName(this,"Save plot","","Latex document (*.tex)");
     if (!(files.isEmpty())) {
         QByteArray tex = texcomplete.toLatin1();
         char *strsave = tex.data();
