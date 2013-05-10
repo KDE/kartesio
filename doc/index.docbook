@@ -42,8 +42,6 @@
 		 <keywordset>
 			 <keyword>KDE</keyword>
 			 <keyword>education</keyword>
-			 <keyword>elements</keyword>
-			 <keyword>chemistry</keyword>
 			 <keyword>university</keyword>
 			 <keyword>physics</keyword>
 			 <keyword>kartesio</keyword>
@@ -68,7 +66,7 @@
 	 <chapter id="quick-start">
 		 <title>Kartesio quick start guide</title>
 
-		 <para>As soon as you open Kartesio, you will get a blank table and a blank plot. This is also the same screen you can get in every moment just clicking on (<menuchoice> <guimenu>File</guimenu> <guimenuitem>New</guimenuitem> </menuchoice>). You can try to best fit your experimental points with a regression algorithm or a neural network, using the tools in the appropriate tab. Please note that regression algorithm needs maxima to be installed on your computer.</para>
+		 <para>As soon as you open Kartesio, you will get a blank table and a blank plot. This is also the same screen you can get in every moment just clicking on (<menuchoice> <guimenu>File</guimenu> <guimenuitem>New</guimenuitem> </menuchoice>). You can try to best fit your experimental points with a regression algorithm or a neural network, using the tools in the appropriate tab. Please note that regression algorithm needs <application>maxima</application> to be installed on your computer.</para>
 		 <screenshot>
 			 <screeninfo>Kartesio main window</screeninfo>
 			 <mediaobject>
@@ -82,7 +80,7 @@
 		 <title>Regression</title>
 		 
 		 <para>
-			 You should start adding your points to the table. Obiously, a bidimensional point is identified with two coordinates (on X and Y axis).
+			 You should start adding your points to the table. Obviously, a bidimensional point is identified with two coordinates (on X and Y axis).
 		 </para>
 
 		 <screenshot>
@@ -93,7 +91,7 @@
 			 </mediaobject>
 		 </screenshot>
 
-		 <para>In the "Regression" tab, you can write a generic function that will be used by Kartesio as a model for the fitting curve. The function must be written with the variables x and y, and with variable coefficients (represented by letters). Obiously, you can also write numeric coefficients. Please take note that the function must be biuniqe.</para>
+		 <para>In the <guilabel>Regression</guilabel> tab, you can write a generic function that will be used by Kartesio as a model for the fitting curve. The function must be written with the variables x and y, and with variable coefficients (represented by letters). Obviously, you can also write numeric coefficients. Please take note that the function must be biuniqe.</para>
 
 		 <screenshot>
 			 <screeninfo>Writing a generic function</screeninfo>
@@ -103,7 +101,7 @@
 			 </mediaobject>
 		 </screenshot>
 
-		 <para>Clicking the "Best fit" button, Kartesio will start to calculate coefficients for the function you wrote, trying to best fit the experimental points. The final function will appear the edit box close to the bottom edge of the window.</para>
+		 <para>Clicking the <guibutton>Best fit</guibutton> button, Kartesio will start to calculate coefficients for the function you wrote, trying to best fit the experimental points. The final function will appear the edit box close to the bottom edge of the window.</para>
 
 		 <screenshot>
 			 <screeninfo>Best fit done</screeninfo>
@@ -113,7 +111,7 @@
 			 </mediaobject>
 		 </screenshot>
 		 
-		 <para>After the fit operation, points and the curve will be automatically plotted. Anyway, you may prefer to change to plotted area to see better the image. This can be done using the four spinboxes: Xmin is the minimum value of X axis, and Xmax is the maximum value. For example, if you write respectively 0 and 1, then the plot will start from 0 and end to 1. The same logic works for Y axisi.</para>
+		 <para>After the fit operation, points and the curve will be automatically plotted. Anyway, you may prefer to change to plotted area to see better the image. This can be done using the four spinboxes: Xmin is the minimum value of X axis, and Xmax is the maximum value. For example, if you write respectively 0 and 1, then the plot will start from 0 and end to 1. The same logic works for Y axis.</para>
 
 		 <screenshot>
 			 <screeninfo>A closer look</screeninfo>
@@ -123,7 +121,7 @@
 			 </mediaobject>
 		 </screenshot>
 		 
-		 <para>If you change plot limits, you may need to change also the resolution: if the resolution of the plot is too little, you will se every curve as a single line. If the resoolution is too much high you will waste a lot of CPU time to draw the plot.</para>
+		 <para>If you change plot limits, you may need to change also the resolution: if the resolution of the plot is too little, you will see every curve as a single line. If the resolution is too high you will waste a lot of CPU time to draw the plot.</para>
 
 		 <screenshot>
 			 <screeninfo>Higher resolution</screeninfo>
@@ -150,7 +148,7 @@
 			 </mediaobject>
 		 </screenshot>
 
-		 <para>Usually, backpropagation training is just what you need. For this reason it is checked by default. Just modify the number of iterations (it should nto be too much high, or the process may end up with way too strange value) and then press the Calculate button. Please take note that the neural network, exactly as a human brain, may give you different results: just press the Calculate button more than one time and you will find out that the network calculates every time a different best fitting curve.</para>
+		 <para>Usually, back propagation training is just what you need. For this reason it is checked by default. Just modify the number of iterations (it should not be too high, or the process may end up with way too strange value) and then press the <guibutton>Calculate</guibutton> button. Please take note that the neural network, exactly as a human brain, may give you different results: just press the <guibutton>Calculate</guibutton> button more than once and you will find out that the network calculates every time a different best fitting curve.</para>
 
 		 <screenshot>
 			 <screeninfo>Back propagation training</screeninfo>
@@ -160,7 +158,7 @@
 			 </mediaobject>
 		 </screenshot>
 
-		 <para>If you are not satisfied by the back propagation training result, you could also use the genetic algorithm training. This can be done simply checking the appropriate checkbox. Gen alg training takes a lot more CPU resources, so you better use a very low iterations number (not more than 500). </para>
+		 <para>If you are not satisfied by the back propagation training result, you could also use the genetic algorithm training. This can be done simply checking the appropriate checkbox. Genetic algorithm training takes a lot more CPU resources, so you better use a very low iterations number (not more than 500). </para>
 
 		 <screenshot>
 			 <screeninfo>Genetic algorithm training</screeninfo>
@@ -176,7 +174,7 @@
 		 <title>Other useful things</title>
 		 
 		 <para>
-			 Sometimes it is useful to redraw the plot. For example, it is if you manually changed the best fitting curve or if you edited some points and you don't want to recalculate the fitting function. Just use the "Draw Plot" button.
+			 Sometimes it is useful to redraw the plot. For example, it is if you manually changed the best fitting curve or if you edited some points and you don't want to recalculate the fitting function. Just use the <guibutton>Draw Plot</guibutton> button.
 		 </para>
 
 		 <screenshot>
@@ -188,7 +186,7 @@
 		 </screenshot>
 		 
 		 <para>
-			 To know how much the fitting curve is different from you experimental points, you can look at the root mean square error. To add it to the plot it is needed to check the checkbox "Show RMS error". Then press the "Draw Plot" button to redraw the plot: it should contain a red label with the RMS error.
+			 To know how much the fitting curve is different from you experimental points, you can look at the root mean square error. To add it to the plot it is needed to check the checkbox <guilabel>Show RMS error</guilabel>. Then press the <guibutton>Draw Plot</guibutton> button to redraw the plot: it should contain a red label with the RMS error.
 		 </para>
 
 		 <screenshot>
@@ -242,7 +240,7 @@
 		 <title>Credits and License</title>
 		 <para>Kartesio</para>
 		 <para>
-			 Program Copyright, 2001-2005 Luca Tringali
+			 Program Copyright, 2010-2011 Luca Tringali
 			 TRINGALINVENT@libero.it
 		 </para>
 

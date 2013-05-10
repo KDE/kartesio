@@ -46,7 +46,7 @@
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Write here the function like &quot;y=a*(x^2)+b*x+c&quot;:</string>
+            <string>Write here a function like &quot;y=a*(x^2)+b*x+c&quot;:</string>
            </property>
           </widget>
          </item>
