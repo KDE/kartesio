@@ -462,7 +462,6 @@ QString Calculations::trainNN(QTableWidget *table,  QComboBox *func, bool backpr
     } //here ends the "else"
     
     return myresult;
-    m_resultFunction = "";
 }
 
 QString Calculations::solvex(QString yvalue, QString dnum) {
