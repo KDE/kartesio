@@ -26,62 +26,62 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
-        : KXmlGuiWindow(parent)
+    : KXmlGuiWindow(parent)
 {
-
+    
     setWindowIcon( KIcon( "kartesio" ) ); 
     KAction* clearAction = new KAction(this);
     clearAction->setText(i18n("&New"));
     clearAction->setIcon(KIcon("document-new"));
     clearAction->setShortcut(Qt::CTRL + Qt::Key_N);
     actionCollection()->addAction("clear", clearAction);
-
+    
     KAction* openAction = new KAction(this);
     openAction->setText(i18n("&Open"));
     openAction->setIcon(KIcon("document-open"));
     openAction->setShortcut(Qt::CTRL + Qt::Key_O);
     actionCollection()->addAction("open", openAction);
-
+    
     KAction* saveAction = new KAction(this);
     saveAction->setText(i18n("&Save"));
     saveAction->setIcon(KIcon("document-save"));
     saveAction->setShortcut(Qt::CTRL + Qt::Key_S);
     actionCollection()->addAction("save", saveAction);
-
+    
     KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
-
+    
     KAction* saveasAction = new KAction(this);
     saveasAction->setText(i18n("&Save as"));
     saveasAction->setIcon(KIcon("document-save"));
     actionCollection()->addAction("saveas", saveasAction);
-
+    
     KAction* plotAction = new KAction(this);
     plotAction->setText(i18n("Draw &Plot"));
     plotAction->setIcon(KIcon("kmplot"));
     plotAction->setShortcut(Qt::CTRL + Qt::Key_P);
     actionCollection()->addAction("plot", plotAction);
-
+    
     KAction* exampleAction = new KAction(this);
     exampleAction->setText(i18n("Show &Example"));
     exampleAction->setShortcut(Qt::CTRL + Qt::Key_E);
     actionCollection()->addAction("example", exampleAction);
-
+    
     KAction*expsvgAction = new KAction(this);
     expsvgAction->setText(i18n("Export as SVG"));
     expsvgAction->setIcon(KIcon("image-svg+xml"));
     actionCollection()->addAction("expsvg", expsvgAction);
-
+    
     KAction*exptexAction = new KAction(this);
     exptexAction->setText(i18n("Export as Latex"));
     exptexAction->setIcon(KIcon("text-x-tex"));
     actionCollection()->addAction("exptex", exptexAction);
-
+    
     KAction*reportAction = new KAction(this);
     reportAction->setText(i18n("Read Maxima Report"));
     reportAction->setIcon(KIcon("kate"));
     actionCollection()->addAction("report", reportAction);
-
-
+    
+    
     connect(clearAction,SIGNAL(triggered(bool)),this,SLOT(on_actionNew_triggered()));
     connect(plotAction,SIGNAL(triggered(bool)),this,SLOT(drawpl()));
     connect(openAction,SIGNAL(triggered(bool)),this,SLOT(on_actionOpen_triggered()));
@@ -91,17 +91,17 @@ MainWindow::MainWindow(QWidget *parent)
     connect(exptexAction,SIGNAL(triggered(bool)),this,SLOT(on_actionTex_triggered()));
     connect(exampleAction,SIGNAL(triggered(bool)),this,SLOT(on_actionShow_example_triggered()));
     connect(reportAction,SIGNAL(triggered(bool)),this,SLOT(on_actionReport_triggered()));
-
-
-
+    
+    
+    
     setupGUI(Default, "kartesioui.rc");
     QWidget *widget = new QWidget( this );
-
+    
     // create the user interface, the parent widget is "widget"
     uid.setupUi(widget);
     setCentralWidget(widget);
-
-
+    
+    
     mycalcs.m_xmin = 0;
     mycalcs.m_xmax = 50;
     mycalcs.m_ymin = 0;
@@ -111,10 +111,10 @@ MainWindow::MainWindow(QWidget *parent)
     mycalcs.m_rmserror = 0.0;
     mycalcs.m_width = int(mycalcs.m_xmax - mycalcs.m_xmin);
     mycalcs.m_file = "";
-
+    
     plot(uid.tableWidget, "",  uid.originalplot->isChecked(),uid.fitplot->isChecked());
-
-
+    
+    
     connect( uid.pushButton,SIGNAL(clicked()),this, SLOT(on_pushButton_clicked()));
     connect( uid.pushButton_2,SIGNAL(clicked()),this, SLOT(on_pushButton_2_clicked()));
     connect( uid.xmin,SIGNAL(valueChanged(double)),this, SLOT(on_xmin_valueChanged(double)));
@@ -125,7 +125,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect( uid.maxIters,SIGNAL(valueChanged(double)),this, SLOT(on_maxiters_valueChanged(double)));
     connect( uid.fitplot,SIGNAL(stateChanged(int)),this, SLOT(on_fitplot_stateChanged(int)));
     connect( uid.originalplot,SIGNAL(stateChanged(int)),this, SLOT(on_originalplot_stateChanged(int)));
-
+    
 }
 
 MainWindow::~MainWindow()
@@ -136,20 +136,20 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_sort_clicked()
 {
-  for (int i=0; i<uid.tableWidget->rowCount() ; i++) {
-    if (!uid.tableWidget->item(i,0) || uid.tableWidget->item(i,0)->text().isEmpty()) {
-      uid.tableWidget->removeRow(i);
+    for (int i=0; i<uid.tableWidget->rowCount() ; i++) {
+        if (!uid.tableWidget->item(i,0) || uid.tableWidget->item(i,0)->text().isEmpty()) {
+            uid.tableWidget->removeRow(i);
+        }
     }
-  }
-  uid.tableWidget->sortItems(1, Qt::AscendingOrder);
+    uid.tableWidget->sortItems(1, Qt::AscendingOrder);
 }
 
 void MainWindow::on_pushButton_clicked()
 {
-   if (mycalcs.check(uid.function->text())==false) return;
-   if (!(uid.function->text().at(0)=='y' and uid.function->text().at(1)=='=')) return; //the function must start with "y="
+    if (mycalcs.check(uid.function->text())==false) return;
+    if (!(uid.function->text().at(0)=='y' and uid.function->text().at(1)=='=')) return; //the function must start with "y="
     if (uid.function->text().lastIndexOf("=")!=1) return;  //we need only one "=" and it must be the second char
-
+    
     QString value = mycalcs.calculate(uid.tableWidget,  uid.function);
     if  (value==QString("died")) KMessageBox::error(this,i18n("Seems that Maxima process died calculating the result."),i18n("Error")) ;
     if  (value!=QString("died")) {
@@ -160,18 +160,18 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-  bool netcheck = true;
-     for (int i=0; i<uid.tableWidget->rowCount() ; i++) {
-            if (!uid.tableWidget->item(i,0) || uid.tableWidget->item(i,0)->text().isEmpty()) {
-                break;
-            } else {
-	      if (uid.tableWidget->item(i,0)->text().toDouble()<0 or uid.tableWidget->item(i,0)->text().toDouble()>1 or uid.tableWidget->item(i,1)->text().toDouble()<0 or uid.tableWidget->item(i,1)->text().toDouble()>1 ) netcheck = false;
-	    }
-     }	    
-	    if (netcheck==false) KMessageBox::information(this,i18n("The neural network is able to use correctly only points between 0 and 1: you can divide them for a power of 10, to make them be in this interval. The network will try anyway to work with the points you have provided, but the resulting curve may not be correct."),i18n("Warning")) ;
+    bool netcheck = true;
+    for (int i=0; i<uid.tableWidget->rowCount() ; i++) {
+        if (!uid.tableWidget->item(i,0) || uid.tableWidget->item(i,0)->text().isEmpty()) {
+            break;
+        } else {
+            if (uid.tableWidget->item(i,0)->text().toDouble()<0 or uid.tableWidget->item(i,0)->text().toDouble()>1 or uid.tableWidget->item(i,1)->text().toDouble()<0 or uid.tableWidget->item(i,1)->text().toDouble()>1 ) netcheck = false;
+        }
+    }	    
+    if (netcheck==false) KMessageBox::information(this,i18n("The neural network is able to use correctly only points between 0 and 1: you can divide them for a power of 10, to make them be in this interval. The network will try anyway to work with the points you have provided, but the resulting curve may not be correct."),i18n("Warning")) ;
     QString value = mycalcs.trainNN(uid.tableWidget,  uid.comboBox, uid.backprop->isChecked(), uid.genalg->isChecked());
-        uid.result->setText(value);
-        drawpl();
+    uid.result->setText(value);
+    drawpl();
 }
 
 void MainWindow::drawpl() {
@@ -186,7 +186,7 @@ void MainWindow::on_actionReport_triggered() {
 }
 
 void MainWindow::plot(QTableWidget *table, QString function, bool original, bool funz) {
-
+    
     //this function plots the original points and the best fit curve
     mycalcs.m_width = int(mycalcs.m_xmax - mycalcs.m_xmin);
     //now I'm preparing the kplot widget
@@ -195,30 +195,30 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
     
     KPlotObject *kpog = new KPlotObject( Qt::green, KPlotObject::Lines );
     KPlotObject *kpob = new KPlotObject( Qt::blue, KPlotObject::Lines );
-
+    
     mycalcs.m_greenPlot = "<polyline points=\"";
     mycalcs.m_bluePlot = "<polyline points=\"";
     mycalcs.m_greenPlotLatex = "\\psline[linecolor=green, showpoints=false]";
     mycalcs.m_bluePlotLatex = "\\psline[linecolor=blue, showpoints=true]";
-
+    
     if (!table->item(0,0) || table->item(0,0)->text().isEmpty())
     {
         //go on
     } else {
-      
-      if (uid.showerror->isChecked() && !(function.isEmpty())) {
-	KPlotObject *kpol = new KPlotObject( Qt::white, KPlotObject::Points );
-	kpol->setLabelPen(QPen( Qt::red, 3.0, Qt::SolidLine ) );
-	QString error = i18n("RMS error: ");
-	//if the error is too little, it is quite zero
-	double myerr = mycalcs.rmsError(table, function);
-	if (myerr<pow(10,-10)) myerr = 0.0;
-	error = error +  QString::number(myerr);
-	//KMessageBox::information(this,"RMS error",error) ;
-	double h = uid.ymax->value() - uid.ymin->value();
-	kpol->addPoint(mycalcs.m_xmin+(mycalcs.m_width/50), mycalcs.m_ymax-(h/50), error, 0);
-	uid.kplotwidget->addPlotObject(kpol);
-      }
+        
+        if (uid.showerror->isChecked() && !(function.isEmpty())) {
+            KPlotObject *kpol = new KPlotObject( Qt::white, KPlotObject::Points );
+            kpol->setLabelPen(QPen( Qt::red, 3.0, Qt::SolidLine ) );
+            QString error = i18n("RMS error: ");
+            //if the error is too little, it is quite zero
+            double myerr = mycalcs.rmsError(table, function);
+            if (myerr<pow(10,-10)) myerr = 0.0;
+            error = error +  QString::number(myerr);
+            //KMessageBox::information(this,"RMS error",error) ;
+            double h = uid.ymax->value() - uid.ymin->value();
+            kpol->addPoint(mycalcs.m_xmin+(mycalcs.m_width/50), mycalcs.m_ymax-(h/50), error, 0);
+            uid.kplotwidget->addPlotObject(kpol);
+        }
         //now we can plot the values
         QVarLengthArray<double, 64> px(table->rowCount());
         QVarLengthArray<double, 64> py(table->rowCount());
@@ -234,43 +234,42 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
             }
         }
     } 
- 
- if ((funz==true) && (!(function.isEmpty()))) {
-   if (mycalcs.check(function)==false) return;
-   //if (!(function.at(0)=='y' and function.at(1)=='=')) return; //the function must start with "y="
-    //if (function.lastIndexOf("=")!=1) return;  //we need only one "=" and it must be the second char
-    //THIS IS THE PLOT OF BEST FIT CURVE
-    double definition = mycalcs.m_resolution;
-    double id = (mycalcs.m_xmin);
-            int totalx = (int(mycalcs.m_xmax-mycalcs.m_xmin)*definition)+1;
-	  //cout << totalx << "|" << endl;
-	for (int i=0; i<totalx; i++) {
+    
+    if ((funz==true) && (!(function.isEmpty()))) {
+        if (mycalcs.check(function)==false) return;
+        //if (!(function.at(0)=='y' and function.at(1)=='=')) return; //the function must start with "y="
+        //if (function.lastIndexOf("=")!=1) return;  //we need only one "=" and it must be the second char
+        //THIS IS THE PLOT OF BEST FIT CURVE
+        double definition = mycalcs.m_resolution;
+        double id = (mycalcs.m_xmin);
+        int totalx = (int(mycalcs.m_xmax-mycalcs.m_xmin)*definition)+1;
+        for (int i=0; i<totalx; i++) {
             QString mreporto = function;
             QScriptEngine myEngine;
             QByteArray ban = mreporto.toLatin1();
             char *tmreporto = ban.data();
-
+            
             QString istr;
             istr.append(QString("%1").arg((id)));
             //now i'm using QScript language to solve the expression
             //in a future we can consider to change it supporting some backends, but it's really complex
             QString myscript = mycalcs.solvex(tmreporto,istr); //myscript is the equation converted in QScript language and with the value of x axis (istr) instead of "x" variable
-	    QScriptValue three = myEngine.evaluate(myscript);
-
+            QScriptValue three = myEngine.evaluate(myscript);
+            
             double tvalue = three.toNumber();
-	    if ((tvalue==tvalue) && (tvalue!=log(0)) && (tvalue!=-log(0))) kpog->addPoint((id), (tvalue));  //remember: tvalue == tvalue is needed to check if tvalue is NaN or not, while log(0) is the infinity
+            if ((tvalue==tvalue) && (tvalue!=log(0)) && (tvalue!=-log(0))) kpog->addPoint((id), (tvalue));  //remember: tvalue == tvalue is needed to check if tvalue is NaN or not, while log(0) is the infinity
             mycalcs.m_greenPlot = mycalcs.m_greenPlot + ' ' + QString::number((id*10)+5).replace(QString(","), QString(".")) + ',' + QString::number((mycalcs.m_ymax-tvalue)*10).replace(QString(","), QString("."));
             mycalcs.m_greenPlotLatex = mycalcs.m_greenPlotLatex + '(' + QString::number(id).replace(QString(","), QString(".")) + ',' + QString::number((tvalue)).replace(QString(","), QString("."))+')';
-	    id = id + (1/definition);
+            id = id + (1/definition);
         }
-uid.kplotwidget->addPlotObject(kpog);
-}
+        uid.kplotwidget->addPlotObject(kpog);
+    }
     
- uid.kplotwidget->addPlotObject(kpob);   
-
+    uid.kplotwidget->addPlotObject(kpob);   
+    
     mycalcs.m_bluePlot = mycalcs.m_bluePlot + "\" style=\"stroke:blue;fill:none\"/> ";
     mycalcs.m_greenPlot = mycalcs.m_greenPlot + "\" style=\"stroke:green;fill:none\"/> ";
-
+    
 }
 
 void MainWindow::on_xmin_valueChanged(double val)
@@ -359,7 +358,7 @@ void MainWindow::on_actionShow_example_triggered()
     titemo->setText("3.14");
     titemo = uid.tableWidget->item(2,1);
     titemo->setText("1");
-
+    
     //uid.function->setText("y=(a*(x^3))+(b*(x^2))+(c*x)+d");
     uid.function->setText("y=a*sin(x)+b");
     uid.xmin->setValue(0.00);
@@ -395,7 +394,7 @@ void MainWindow::Openfile() {
             QString tempya;
             int tablea = 0;
             int xax = 0;
-	    int res = 0;
+            int res = 0;
             do {
                 texto >> tmpchr;
                 if (tmpchr!='|') tempyval = tempyval + tmpchr;
@@ -410,8 +409,8 @@ void MainWindow::Openfile() {
                         }
                         i++;
                     }
-
-
+                    
+                    
                     if ((xax==1) and (tempyval != QString("table1"))  and (tempyval != QString("function")) and (tempyval != QString("result")) ) {
                         uid.function->setText(tempyval);
                         xax = 0;
@@ -421,31 +420,31 @@ void MainWindow::Openfile() {
                         uid.result->setText(tempyval);
                         res = 0;
                     }
-
+                    
                     if (tempyval == QString("table1")) {
                         i=0;
                         tablea=1;
                         xax = 0;
-			res = 0;
+                        res = 0;
                     }
                     if (tempyval == QString("function"))  {
                         tablea=0;
                         xax = 1;
-			res = 0;
+                        res = 0;
                     }
                     if (tempyval == QString("result"))  {
                         tablea=0;
                         xax = 0;
-			res = 1;
+                        res = 1;
                     }
-
+                    
                     tempyval = "";
                 }
             } while (!texto.eof());
             texto.close();
         }
     }
-
+    
 }
 
 void MainWindow::on_actionSave_triggered() {
@@ -454,7 +453,7 @@ void MainWindow::on_actionSave_triggered() {
         exit;
     }
     //save all the cells values
-
+    
     QString tempyval;
     tempyval = "table1|";
     for (int i=0; i<uid.tableWidget->rowCount() ; i++) {
@@ -472,15 +471,15 @@ void MainWindow::on_actionSave_triggered() {
     tempyval = tempyval + QString("\n") + uid.function->text() + QString("|");
     tempyval =  tempyval + QString("\nresult|");
     tempyval = tempyval + QString("\n") + uid.result->text() + QString("|");
-
+    
     tempyval =  tempyval + QString("\nthe end|\n");
-
+    
     if (!(mycalcs.m_file.isEmpty())) {
         QByteArray ba = tempyval.toLatin1();
         char *strsave = ba.data();
         QByteArray bac = mycalcs.m_file.toLatin1();
         char *filec = bac.data();
-
+        
         ofstream out(filec);
         if (!out) KMessageBox::error(this,i18n("Unable to create ")+mycalcs.m_file,i18n("Error")) ;
         out << strsave;
@@ -501,14 +500,14 @@ void MainWindow::on_actionSvg_triggered() {
     if (uid.fitplot->isChecked()) svgcomplete = svgcomplete + mycalcs.m_greenPlot ;
     if (uid.originalplot->isChecked()) svgcomplete = svgcomplete + mycalcs.m_bluePlot;
     svgcomplete = svgcomplete + "</svg> ";
-
+    
     QString files = KFileDialog::getSaveFileName(KUrl(), "*.svg|Svg image (*.svg)", this, i18n("Save plot")); //(this,"Save plot","","Svg image (*.svg)");
     if (!(files.isEmpty())) {
         QByteArray svgt = svgcomplete.toLatin1();
         char *strsave = svgt.data();
         QByteArray ban = files.toLatin1();
         char *filec = ban.data();
-
+        
         ofstream out(filec);
         if (!out) KMessageBox::error(this,i18n("Unable to create ")+files,i18n("Error")) ;
         out << strsave;
@@ -517,25 +516,25 @@ void MainWindow::on_actionSvg_triggered() {
 }
 void MainWindow::on_actionTex_triggered() {
     //save as latex
-
+    
     QString texheader = "\\documentclass[a4paper,12pt]{article}\n \\usepackage{pst-plot}\n \\begin{document} \n \\psset{xunit=1mm,yunit=1mm} %you can make the plot bigger changing xunit and yunit value";
     QString texcomplete = texheader ;
     if (uid.fitplot->isChecked()) texcomplete = texcomplete + '\n' + mycalcs.m_greenPlotLatex ;
     if (uid.originalplot->isChecked()) texcomplete = texcomplete + '\n' + mycalcs.m_bluePlotLatex;
     texcomplete = texcomplete + QString(" \n \\[ ") + uid.result->text() + QString(" \\] \n \\end{document} ");
-
+    
     QString files = KFileDialog::getSaveFileName(KUrl(), "*.tex|Latex document (*.tex)", this, i18n("Save plot")); //getSaveFileName(this,"Save plot","","Latex document (*.tex)");
     if (!(files.isEmpty())) {
         QByteArray tex = texcomplete.toLatin1();
         char *strsave = tex.data();
         QByteArray ban = files.toLatin1();
         char *filec = ban.data();
-
+        
         ofstream out(filec);
         if (!out) KMessageBox::error(this,i18n("Unable to create ")+files,i18n("Error")) ;
         out << strsave;
         out.close();
         if (out) KMessageBox::information(this,i18n("Please take note that you can't use pdflatex to convert this file directly into a pdf file. You can convert it only into dvi,and then will be possible to create a pdf."),i18n("Well done")) ;
     }
-
+    
 }

@@ -36,34 +36,34 @@
 #define APP_VERSION "0.2.50"
 
 static const char description[] =
-    I18N_NOOP("A program for calculating best fit curves with experimental points.");
+I18N_NOOP("A program for calculating best fit curves with experimental points.");
 
 static const char version[] = APP_VERSION;
 
 
 int main(int argc, char *argv[])
 {
-
-    KAboutData about("kartesio", 0, ki18n("Kartesio"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2011-2013 Luca Tringali"), KLocalizedString(), "https://projects.kde.org/projects/playground/edu/kartesio");
-    about.addAuthor( ki18n("Luca Tringali"), KLocalizedString(), "TRINGALINVENT@libero.it" );
-    //about.addCredit(ki18n("your name here"),ki18n("What you have done"));
-
-    KCmdLineArgs::init(argc, argv, &about);
-
-    KCmdLineOptions options;
-    options.add("+[file]", ki18n("Document to open"));
-    KCmdLineArgs::addCmdLineOptions(options);
-
-    KApplication a;
-
-    MainWindow *w = new MainWindow();
-    w->show();
-
-    KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-    if (args->count())
-    {
-        w->Openarg(args->url(0).url());
-    }
-
-    return a.exec();
+  
+  KAboutData about("kartesio", 0, ki18n("Kartesio"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2011-2013 Luca Tringali"), KLocalizedString(), "https://projects.kde.org/projects/playground/edu/kartesio");
+  about.addAuthor( ki18n("Luca Tringali"), KLocalizedString(), "TRINGALINVENT@libero.it" );
+  //about.addCredit(ki18n("your name here"),ki18n("What you have done"));
+  
+  KCmdLineArgs::init(argc, argv, &about);
+  
+  KCmdLineOptions options;
+  options.add("+[file]", ki18n("Document to open"));
+  KCmdLineArgs::addCmdLineOptions(options);
+  
+  KApplication a;
+  
+  MainWindow *w = new MainWindow();
+  w->show();
+  
+  KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
+  if (args->count())
+  {
+    w->Openarg(args->url(0).url());
+  }
+  
+  return a.exec();
 }
