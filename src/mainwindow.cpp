@@ -534,7 +534,7 @@ void MainWindow::on_actionTex_triggered() {
         if (!out) KMessageBox::error(this,i18n("Unable to create ")+files,i18n("Error")) ;
         out << strsave;
         out.close();
-        if (out) KMessageBox::information(this,i18n("Please take note that you can't use pdflatex to convert this file directly into a pdf file. You can convert it only into dvi,and then will be possible to create a pdf."),i18n("Well done")) ;
+        if (out) KMessageBox::information(this,i18n("Please note that you can't use pdflatex to convert this file directly into a pdf file. You can convert it only into dvi, and then it will be possible to create a pdf."),i18n("Well done")) ;
     }
     
 }

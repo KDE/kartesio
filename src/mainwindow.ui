@@ -16,7 +16,7 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Here's the best fit curve:</string>
+        <string>Best fit curve:</string>
        </property>
       </widget>
      </item>
@@ -46,7 +46,7 @@
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Write here a function like &quot;y=a*(x^2)+b*x+c&quot;:</string>
+            <string>Write a function like &quot;y=a*(x^2)+b*x+c&quot;:</string>
            </property>
           </widget>
          </item>
@@ -345,7 +345,7 @@
          <item>
           <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>Xmin</string>
+            <string>X min:</string>
            </property>
           </widget>
          </item>
@@ -362,7 +362,7 @@
          <item>
           <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>Xmax</string>
+            <string>X max:</string>
            </property>
           </widget>
          </item>
@@ -382,7 +382,7 @@
          <item>
           <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Ymin</string>
+            <string>Y min:</string>
            </property>
           </widget>
          </item>
@@ -399,7 +399,7 @@
          <item>
           <widget class="QLabel" name="label_6">
            <property name="text">
-            <string>Ymax</string>
+            <string>Y max:</string>
            </property>
           </widget>
          </item>
@@ -423,7 +423,7 @@
          <item>
           <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>Plot resolution</string>
+            <string>Plot resolution:</string>
            </property>
           </widget>
          </item>

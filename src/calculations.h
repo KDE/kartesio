@@ -36,10 +36,10 @@
 #include <vector>
 
 #include <QtGui/QMainWindow>
-#include "QtGui/QTableWidget"
-#include "QtGui/QLineEdit"
-#include "QtCore/QString"
-#include "QtCore/QStringList"
+#include <QtGui/QTableWidget>
+#include <QtGui/QLineEdit>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValue>
 #include <QtScript/QScriptClass>
@@ -74,30 +74,52 @@ class Calculations
 public:
   explicit Calculations();
   virtual ~Calculations();
+  /** calculate fitting curve with regression algorithm */
+  QString calculate(QTableWidget *table,  QLineEdit *func); 
+  /** calculate fitting curve with neural network */
+  QString trainNN(QTableWidget *table,  QComboBox *func, bool backprop, bool genalg); 
+  /** solve equation in a variable */
+  QString solvex(QString yvalue, QString dnum); 
+  /** substitute a variable with another value */
+  QString replacevar(QString yvalue, QString dnum, QString var); 
+  /** calculate rms error */
+  double rmsError(QTableWidget *table,  QString func); 
+  /** test the string to see if it contains dangerous chars */
+  bool check(QString func); 
   
-  QString calculate(QTableWidget *table,  QLineEdit *func); ///calculate fitting curve with regression algorithm
-  QString trainNN(QTableWidget *table,  QComboBox *func, bool backprop, bool genalg); ///calculate fitting curve with neural network
-  QString solvex(QString yvalue, QString dnum); ///solve equation in a variable
-  QString replacevar(QString yvalue, QString dnum, QString var); ///substitute a variable with another value
-  double rmsError(QTableWidget *table,  QString func); ///calculate rms error
-  bool check(QString func); ///test the string to see if it contains dangerous chars
-  
-  QString m_greenPlot;  ///svg green line
-  QString m_bluePlot;   ///svg blue line
-  QString m_greenPlotLatex; ///latex green line
-  QString m_bluePlotLatex; ///latex blue line
-  QStringList m_oldValue;  ///temporary string list.
-  QString m_resultFunction; ///the calculated function
-  QString m_file; ///the file actually opened (or just saved)
-  int m_tryNumber; ///counting how many times the routing have been run
-  double m_xmin; ///minimumx x value
-  double m_xmax; ///maximum x value
-  double m_ymin; ///minimum y value
-  double m_ymax;  ///maximum y value
-  double m_resolution; ///resolution of the plot
-  double m_rmserror;  ///last rms error calculated
-  long m_maxIters; ///maximum number of iteration for neural network training
-  int m_width; ///width of the plottable area
-  QString m_myReport; ///last maxima report
+  /** svg green line */
+  QString m_greenPlot;  
+  /** svg blue line */
+  QString m_bluePlot;   
+  /** latex green line */
+  QString m_greenPlotLatex; 
+  /** latex blue line */
+  QString m_bluePlotLatex; 
+  /** temporary string list */
+  QStringList m_oldValue;  
+  /** the calculated function */
+  QString m_resultFunction; 
+  /** the file actually opened (or just saved) */
+  QString m_file; 
+  /** counting how many times the routing have been run */
+  int m_tryNumber; 
+  /** minimumx x value */
+  double m_xmin; 
+  /** maximum x value */
+  double m_xmax; 
+  /** minimum y value */
+  double m_ymin; 
+  /** maximum y value */
+  double m_ymax;  
+  /** plot resolution */
+  double m_resolution; 
+  /** last rms error calculated */
+  double m_rmserror;  
+  /** maximum number of iteration for neural network training */
+  long m_maxIters; 
+  /** width of the plottable area */
+  int m_width; 
+  /** last Maxima report */
+  QString m_myReport; 
 };
 
