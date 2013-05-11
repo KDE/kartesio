@@ -65,7 +65,6 @@ private slots:
 
 private:
     Ui::centralWidget uid;  ///ui wigdet
-    Ui::centralWidget *ui;  ///pointer to ui wigdet
 
     void plot(QTableWidget* table, QString function, bool original, bool funz); ///draw plot
     void Openfile();  ///open file (without argument)
