@@ -36,10 +36,10 @@
 #include <vector>
 
 #include <QtGui/QMainWindow>
-#include "QtGui/QTableWidget"
-#include "QtGui/QLineEdit"
-#include "QtCore/QString"
-#include "QtCore/QStringList"
+#include <QtGui/QTableWidget>
+#include <QtGui/QLineEdit>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValue>
 #include <QtScript/QScriptClass>
