@@ -108,21 +108,21 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
 
         //Try to fill the coeff list with all the coefficients and totalcoeff with the number of coefficients if there is a generic equation
         if (func->text()=="") return 0;
-        QByteArray bat = func->text().toLatin1();
-        char *yvalue = bat.data();
+        //QByteArray bat = func->text().toLatin1();
+        //char *yvalue = bat.data();
+	QString yvalue = func->text();
         QString tempy;
         QString tempyn = "";
         tempy = "";
-        for (int i=0; strlen(yvalue)+1;i++) {
-	  bool test = (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X');
-            if (!(test or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==','or yvalue[i]=='=')) break; //if current value is not a permitted value, this means that something is wrong
+	if (check(yvalue)==false) return "";
+        for (int i=0; i<yvalue.length()+1;i++) {
             if (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M') tempyn = tempyn + yvalue[i]; 
 // every letter will be added in the variable tempyn so we can study it
             tempy = "";
             if  (yvalue[i]=='=' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',' ) tempyn = "";
             //use the correct functions
             if (!(tempyn.isEmpty() or tempyn=="cos" or tempyn=="sin" or tempyn=="y" or tempyn=="x" or tempyn=="tan" or tempyn=="cot" or tempyn=="exp" or tempyn=="abs" or tempyn=="acos" or tempyn=="atan" or tempyn=="atan2" or tempyn=="asin" or tempyn=="ceil" or tempyn=="floor" or tempyn=="log" or tempyn=="ln" or tempyn=="max" or tempyn=="min" or tempyn=="random" or tempyn=="round" or tempyn=="sqrt")) {
-                if  ((yvalue[i+1]=='+' or yvalue[i+1]=='=' or yvalue[i+1]=='-' or yvalue[i+1]=='*' or yvalue[i+1]=='^' or yvalue[i+1]=='/' or yvalue[i+1]=='(' or yvalue[i+1]==')' or yvalue[i+1]=='1' or yvalue[i+1]=='2' or yvalue[i+1]=='3' or yvalue[i+1]=='4' or yvalue[i+1]=='5' or yvalue[i+1]=='6' or yvalue[i+1]=='7' or yvalue[i+1]=='8' or yvalue[i+1]=='9' or yvalue[i+1]=='0' or yvalue[i+1]=='.' or yvalue[i+1]==' ' or yvalue[i+1]==',' or yvalue[i+1]=='=' or (i+1)==(strlen(yvalue))) ) {
+                if  ((yvalue[i+1]=='+' or yvalue[i+1]=='=' or yvalue[i+1]=='-' or yvalue[i+1]=='*' or yvalue[i+1]=='^' or yvalue[i+1]=='/' or yvalue[i+1]=='(' or yvalue[i+1]==')' or yvalue[i+1]=='1' or yvalue[i+1]=='2' or yvalue[i+1]=='3' or yvalue[i+1]=='4' or yvalue[i+1]=='5' or yvalue[i+1]=='6' or yvalue[i+1]=='7' or yvalue[i+1]=='8' or yvalue[i+1]=='9' or yvalue[i+1]=='0' or yvalue[i+1]=='.' or yvalue[i+1]==' ' or yvalue[i+1]==',' or yvalue[i+1]=='=' or (i+1)==(yvalue.length())) ) {
                     coeff.append(tempyn);
                     totalcoeff++;
                 }
@@ -274,7 +274,6 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
         
     } //here ends the "else"
     return m_resultFunction;
-    m_resultFunction = "";
 }
 
 
@@ -483,7 +482,7 @@ QString Calculations::trainNN(QTableWidget *table,  QComboBox *func, bool backpr
     m_resultFunction = "";
 }
 
-QString Calculations::solvex(char *yvalue, QString dnum) {
+QString Calculations::solvex(QString yvalue, QString dnum) {
     //yvalue contains the equation of Y-axis variable
     //Remember that the function to elevate to power is Math.pow(b,e)
     //dnum is the value of x
@@ -501,10 +500,8 @@ QString Calculations::solvex(char *yvalue, QString dnum) {
     mreport ="";
     QString tempyval;
     tempy = "";
-    for (int i=0; strlen(yvalue)+1;i++) {
-      bool test = (yvalue[i]=='=' or yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C')
-;
-        if (!(test or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',')) break; //if current value is not a permitted value, this means that something is wrong
+    if (check(yvalue)==false) return "";
+    for (int i=0; i<yvalue.length()+1;i++) {
         if (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M') tempyn = tempyn + yvalue[i]; 
 // every letter will be added in the variable tempyn so we can study it
         tempy = "";
@@ -569,7 +566,7 @@ QString Calculations::solvex(char *yvalue, QString dnum) {
     return mreport;
 }
 
-QString Calculations::replacevar(char *yvalue, QString dnum, QString var) {
+QString Calculations::replacevar(QString yvalue, QString dnum, QString var) {
     //yvalue contains the equation of Y-axis variable
     //Remember that the function to elevate to power is Math.pow(b,e)
     //dnum is the value of x
@@ -580,14 +577,15 @@ QString Calculations::replacevar(char *yvalue, QString dnum, QString var) {
     mreport ="";
     QString tempyval;
     tempy = "";
-    for (int i=0; strlen(yvalue)+1;i++) {
-      bool test = (yvalue[i]=='=' or yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' );
-        if (!(test or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',')) break; //if current value is not a permitted value, this means that something is wrong
+    if (check(yvalue)==false) return "";
+    for (int i=0; i<yvalue.length()+1;i++) {
+      //bool test = (yvalue[i]=='=' or yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='^' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' );
+        //if (!(test or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',')) break; //if current value is not a permitted value, this means that something is wrong
         if (yvalue[i]=='q' or yvalue[i]=='w' or yvalue[i]=='e' or yvalue[i]=='r' or yvalue[i]=='t' or yvalue[i]=='y' or yvalue[i]=='u' or yvalue[i]=='i' or yvalue[i]=='o' or yvalue[i]=='p' or yvalue[i]=='a' or yvalue[i]=='s' or yvalue[i]=='d' or yvalue[i]=='f' or yvalue[i]=='g' or yvalue[i]=='h' or yvalue[i]=='j' or yvalue[i]=='k' or yvalue[i]=='l' or yvalue[i]=='z' or yvalue[i]=='x' or yvalue[i]=='c' or yvalue[i]=='v' or yvalue[i]=='b' or yvalue[i]=='n' or yvalue[i]=='m' or yvalue[i]=='Q' or yvalue[i]=='W' or yvalue[i]=='E' or yvalue[i]=='R' or yvalue[i]=='T' or yvalue[i]=='Y' or yvalue[i]=='U' or yvalue[i]=='I' or yvalue[i]=='O' or yvalue[i]=='P' or yvalue[i]=='A' or yvalue[i]=='S' or yvalue[i]=='D' or yvalue[i]=='F' or yvalue[i]=='G' or yvalue[i]=='H' or yvalue[i]=='J' or yvalue[i]=='K' or yvalue[i]=='L' or yvalue[i]=='Z' or yvalue[i]=='X' or yvalue[i]=='C' or yvalue[i]=='V' or yvalue[i]=='B' or yvalue[i]=='N' or yvalue[i]=='M') tempyn = tempyn + yvalue[i]; 
 // every letter will be added in the variable tempyn so we can study it
         tempy = "";
         if  (yvalue[i]=='+' or yvalue[i]=='-' or yvalue[i]=='*' or yvalue[i]=='/' or yvalue[i]=='(' or yvalue[i]==')' or yvalue[i]=='1' or yvalue[i]=='2' or yvalue[i]=='3' or yvalue[i]=='4' or yvalue[i]=='5' or yvalue[i]=='6' or yvalue[i]=='7' or yvalue[i]=='8' or yvalue[i]=='9' or yvalue[i]=='0' or yvalue[i]=='.' or yvalue[i]==',' ) tempyn = "";
-        if  ((yvalue[i+1]=='+' or yvalue[i+1]=='=' or yvalue[i+1]=='-' or yvalue[i+1]=='*' or yvalue[i+1]=='^' or yvalue[i+1]=='/' or yvalue[i+1]=='(' or yvalue[i+1]==')' or yvalue[i+1]=='1' or yvalue[i+1]=='2' or yvalue[i+1]=='3' or yvalue[i+1]=='4' or yvalue[i+1]=='5' or yvalue[i+1]=='6' or yvalue[i+1]=='7' or yvalue[i+1]=='8' or yvalue[i+1]=='9' or yvalue[i+1]=='0' or yvalue[i+1]=='.' or yvalue[i+1]==' ' or yvalue[i+1]==',' or yvalue[i+1]=='=' or (i+1)==(strlen(yvalue))) ) {
+        if  ((yvalue[i+1]=='+' or yvalue[i+1]=='=' or yvalue[i+1]=='-' or yvalue[i+1]=='*' or yvalue[i+1]=='^' or yvalue[i+1]=='/' or yvalue[i+1]=='(' or yvalue[i+1]==')' or yvalue[i+1]=='1' or yvalue[i+1]=='2' or yvalue[i+1]=='3' or yvalue[i+1]=='4' or yvalue[i+1]=='5' or yvalue[i+1]=='6' or yvalue[i+1]=='7' or yvalue[i+1]=='8' or yvalue[i+1]=='9' or yvalue[i+1]=='0' or yvalue[i+1]=='.' or yvalue[i+1]==' ' or yvalue[i+1]==',' or yvalue[i+1]=='=' or (i+1)==(yvalue.length())) ) {
             if (tempyn==var) tempyval = tempyval + dnum; //replace every x with the correct value
             if (tempyn!=var) tempyval = tempyval + tempyn;
             tempyn = "";
@@ -599,4 +597,34 @@ QString Calculations::replacevar(char *yvalue, QString dnum, QString var) {
         if (tempyval!="") mreport = tempyval;
     }
     return mreport;
+}
+
+bool Calculations::check(QString func) { //returns true if it does not contain dangerous chars, false if there is one
+
+    //QString tempy;
+    //QString tempyn = "";
+    bool result = true;
+
+    if (func.isEmpty()) result = false;
+    //if (!(func[0]=='y' and func[1]=='=')) result = false; //the function must start with "y="
+    //if (func.lastIndexOf("=")!=1) result = false;  //we need only one "=" and it must be the second char
+    
+  for (int i=0; i<func.length();i++) {
+//bool test = (func[i]=='q' or func[i]=='w' or func[i]=='e' or func[i]=='r' or func[i]=='t' or func[i]=='y' or func[i]=='u' or func[i]=='i' or func[i]=='o' or func[i]=='p' or func[i]=='a' or func[i]=='s' or func[i]=='d' or func[i]=='f' or func[i]=='g' or func[i]=='h' or func[i]=='j' or func[i]=='k' or func[i]=='l' or func[i]=='z' or func[i]=='x' or func[i]=='c' or func[i]=='v' or func[i]=='b' or func[i]=='n' or func[i]=='m' or func[i]=='+' or func[i]=='-' or func[i]=='^' or func[i]=='*' or func[i]=='/' or func[i]=='(' or func[i]==')' or func[i]=='Q' or func[i]=='W' or func[i]=='E' or func[i]=='R' or func[i]=='T' or func[i]=='Y' or func[i]=='U' or func[i]=='I' or func[i]=='O' or func[i]=='P' or func[i]=='A' or func[i]=='S' or func[i]=='D' or func[i]=='F' or func[i]=='G' or func[i]=='H' or func[i]=='J' or func[i]=='K' or func[i]=='L' or func[i]=='Z' or func[i]=='X');
+//if (!(test or func[i]=='C' or func[i]=='V' or func[i]=='B' or func[i]=='N' or func[i]=='M' or func[i]=='1' or func[i]=='2' or func[i]=='3' or func[i]=='4' or func[i]=='5' or func[i]=='6' or func[i]=='7' or func[i]=='8' or func[i]=='9' or func[i]=='0' or func[i]=='.' or func[i]==','or func[i]=='=')) result = false;
+            if (!(func.at(i).isLetter() or func.at(i).isNumber() or func.at(i)=='+' or func.at(i)=='-' or func.at(i)=='^' or func.at(i)=='*' or func.at(i)=='/' or func.at(i)=='(' or func.at(i)==')' or func.at(i)=='.' or func.at(i)==','or func.at(i)=='=')) result = false;
+	    //cout << func[i].toLatin1() << "|";
+        }
+        //cout << endl;
+        if (func.indexOf("**")!=-1) result = false;
+	if (func.indexOf("==")!=-1) result = false;
+	if (func.indexOf("/*")!=-1) result = false;
+	if (func.indexOf("//")!=-1) result = false;
+	if (func.indexOf("\\")!=-1) result = false;
+	if (func.indexOf("..")!=-1) result = false;
+	if (func.indexOf(",,")!=-1) result = false;
+	
+	//if (result==true) cout << "true" << endl;
+	//if (result==false) cout << "false" << endl;
+	return result;
 }

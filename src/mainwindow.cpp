@@ -146,8 +146,12 @@ void MainWindow::on_sort_clicked()
 
 void MainWindow::on_pushButton_clicked()
 {
+   if (mycalcs.check(uid.function->text())==false) return;
+   if (!(uid.function->text().at(0)=='y' and uid.function->text().at(1)=='=')) return; //the function must start with "y="
+    if (uid.function->text().lastIndexOf("=")!=1) return;  //we need only one "=" and it must be the second char
+
     QString value = mycalcs.calculate(uid.tableWidget,  uid.function);
-    if  (value==QString("died")) KMessageBox::error(this,i18n("Error"),i18n("Seems that Maxima process died calculating the result.")) ;
+    if  (value==QString("died")) KMessageBox::error(this,i18n("Seems that Maxima process died calculating the result."),i18n("Error")) ;
     if  (value!=QString("died")) {
         uid.result->setText(value);
         drawpl();
@@ -156,6 +160,15 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_pushButton_2_clicked()
 {
+  bool netcheck = true;
+     for (int i=0; i<uid.tableWidget->rowCount() ; i++) {
+            if (!uid.tableWidget->item(i,0) || uid.tableWidget->item(i,0)->text().isEmpty()) {
+                break;
+            } else {
+	      if (uid.tableWidget->item(i,0)->text().toDouble()<0 or uid.tableWidget->item(i,0)->text().toDouble()>1 or uid.tableWidget->item(i,1)->text().toDouble()<0 or uid.tableWidget->item(i,1)->text().toDouble()>1 ) netcheck = false;
+	    }
+     }	    
+	    if (netcheck==false) KMessageBox::information(this,i18n("The neural network is able to use correctly only points between 0 and 1: you can divide them for a power of 10, to make them be in this interval. The network will try anyway to work with the points you have provided, but the resulting curve may not be correct."),i18n("Warning")) ;
     QString value = mycalcs.trainNN(uid.tableWidget,  uid.comboBox, uid.backprop->isChecked(), uid.genalg->isChecked());
         uid.result->setText(value);
         drawpl();
@@ -168,7 +181,8 @@ void MainWindow::drawpl() {
 }
 
 void MainWindow::on_actionReport_triggered() {
-    KMessageBox::information(this,"Maxima Report",mycalcs.m_myReport);
+    if (mycalcs.m_myReport.isEmpty()) KMessageBox::information(this,i18n("No report to show."),"Maxima Report");
+    if (!mycalcs.m_myReport.isEmpty()) KMessageBox::information(this,mycalcs.m_myReport,"Maxima Report");
 }
 
 void MainWindow::plot(QTableWidget *table, QString function, bool original, bool funz) {
@@ -222,6 +236,9 @@ void MainWindow::plot(QTableWidget *table, QString function, bool original, bool
     } 
  
  if ((funz==true) && (!(function.isEmpty()))) {
+   if (mycalcs.check(function)==false) return;
+   //if (!(function.at(0)=='y' and function.at(1)=='=')) return; //the function must start with "y="
+    //if (function.lastIndexOf("=")!=1) return;  //we need only one "=" and it must be the second char
     //THIS IS THE PLOT OF BEST FIT CURVE
     double definition = mycalcs.m_resolution;
     double id = (mycalcs.m_xmin);
@@ -369,7 +386,7 @@ void MainWindow::Openfile() {
         QByteArray bac = mycalcs.m_file.toLatin1();
         char *filec = bac.data();
         ifstream texto(filec);
-        if (!texto) KMessageBox::error(this,i18n("Error"),i18n("Unable to open ")+mycalcs.m_file) ;
+        if (!texto) KMessageBox::error(this,i18n("Unable to open ")+mycalcs.m_file,i18n("Error")) ;
         if (texto) {
             on_actionNew_triggered();
             QString tempyval;
@@ -465,7 +482,7 @@ void MainWindow::on_actionSave_triggered() {
         char *filec = bac.data();
 
         ofstream out(filec);
-        if (!out) KMessageBox::error(this,i18n("Error"),i18n("Unable to create ")+mycalcs.m_file) ;
+        if (!out) KMessageBox::error(this,i18n("Unable to create ")+mycalcs.m_file,i18n("Error")) ;
         out << strsave;
         out.close();
     }
@@ -493,7 +510,7 @@ void MainWindow::on_actionSvg_triggered() {
         char *filec = ban.data();
 
         ofstream out(filec);
-        if (!out) KMessageBox::error(this,i18n("Error"),i18n("Unable to create ")+files) ;
+        if (!out) KMessageBox::error(this,i18n("Unable to create ")+files,i18n("Error")) ;
         out << strsave;
         out.close();
     }
@@ -515,10 +532,10 @@ void MainWindow::on_actionTex_triggered() {
         char *filec = ban.data();
 
         ofstream out(filec);
-        if (!out) KMessageBox::error(this,i18n("Error"),i18n("Unable to create ")+files) ;
+        if (!out) KMessageBox::error(this,i18n("Unable to create ")+files,i18n("Error")) ;
         out << strsave;
         out.close();
-        if (out) KMessageBox::information(this,i18n("Well done"),i18n("Please take note that you can't use pdflatex to convert this file directly into a pdf file. You can convert it only into dvi,and then will be possible to create a pdf.")) ;
+        if (out) KMessageBox::information(this,i18n("Please take note that you can't use pdflatex to convert this file directly into a pdf file. You can convert it only into dvi,and then will be possible to create a pdf."),i18n("Well done")) ;
     }
 
 }

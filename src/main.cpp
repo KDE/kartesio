@@ -33,7 +33,7 @@
 
 #include "mainwindow.h"
 
-#define APP_VERSION "0.1.00"
+#define APP_VERSION "0.2.50"
 
 static const char description[] =
     I18N_NOOP("A program for calculating best fit curves with experimental points.");

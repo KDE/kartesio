@@ -38,10 +38,10 @@ class MainWindow : public KXmlGuiWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void Openarg(QString filename);
+    void Openarg(QString filename); ///open file
 
 private slots:
-    void on_pushButton_clicked();
+    void on_pushButton_clicked(); 
     void on_pushButton_2_clicked();
     void on_sort_clicked();
     void on_xmin_valueChanged(double );
@@ -61,17 +61,15 @@ private slots:
     void on_actionSaveAs_triggered();
     void on_actionSvg_triggered();
     void on_actionTex_triggered();
-    void drawpl();
+    void drawpl();  ///draw plot
 
 private:
-    Ui::centralWidget uid;
-    Ui::centralWidget *ui;
+    Ui::centralWidget uid;  ///ui wigdet
+    Ui::centralWidget *ui;  ///pointer to ui wigdet
 
-    void plot(QTableWidget* table, QString function, bool original, bool funz);
-    void Openfile();
-    Calculations mycalcs ;
-
-
+    void plot(QTableWidget* table, QString function, bool original, bool funz); ///draw plot
+    void Openfile();  ///open file (without argument)
+    Calculations mycalcs ; //object from class Calculations
 };
 
 #endif // MAINWINDOW_H
