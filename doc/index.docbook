@@ -91,7 +91,7 @@
 			 </mediaobject>
 		 </screenshot>
 
-		 <para>In the <guilabel>Regression</guilabel> tab, you can write a generic function that will be used by Kartesio as a model for the fitting curve. The function must be written with the variables x and y, and with variable coefficients (represented by letters). Obviously, you can also write numeric coefficients. Please take note that the function must be biuniqe.</para>
+		 <para>In the <guilabel>Regression</guilabel> tab, you can write a generic function that will be used by Kartesio as a model for the fitting curve. The function must be written with the variables x and y, and with variable coefficients (represented by letters). Obviously, you can also write numeric coefficients. Please take note that the function must be biunique.</para>
 
 		 <screenshot>
 			 <screeninfo>Writing a generic function</screeninfo>
@@ -111,7 +111,7 @@
 			 </mediaobject>
 		 </screenshot>
 		 
-		 <para>After the fit operation, points and the curve will be automatically plotted. Anyway, you may prefer to change to plotted area to see better the image. This can be done using the four spinboxes: Xmin is the minimum value of X axis, and Xmax is the maximum value. For example, if you write respectively 0 and 1, then the plot will start from 0 and end to 1. The same logic works for Y axis.</para>
+		 <para>After the fit operation, points and the curve will be automatically plotted. Anyway, you may prefer to change to plotted area to see better the image. This can be done using the four spinboxes: <guilabel>X min</guilabel> is the minimum value of X axis, and <guilabel>X max</guilabel> is the maximum value. For example, if you write respectively 0 and 1, then the plot will start from 0 and end to 1. The same logic works for Y axis.</para>
 
 		 <screenshot>
 			 <screeninfo>A closer look</screeninfo>
