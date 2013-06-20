@@ -66,7 +66,7 @@
 	 <chapter id="quick-start">
 		 <title>Kartesio quick start guide</title>
 
-		 <para>As soon as you open Kartesio, you will get a blank table and a blank plot. This is also the same screen you can get in every moment just clicking on (<menuchoice> <guimenu>File</guimenu> <guimenuitem>New</guimenuitem> </menuchoice>). You can try to best fit your experimental points with a regression algorithm or a neural network, using the tools in the appropriate tab. Please note that regression algorithm needs <application>maxima</application> to be installed on your computer.</para>
+		 <para>As soon as you open Kartesio, you will get a blank table and a blank plot. This is also the same screen you can get in every moment just clicking on (<menuchoice> <guimenu>File</guimenu> <guimenuitem>New</guimenuitem> </menuchoice>). You can try to best fit your experimental points with a regression algorithm or a neural network, using the tools in the appropriate tab. Please note that regression algorithm needs <application>maxima</application> to be installed on your computer, while the neural network method needs ZorbaNeural.</para>
 		 <screenshot>
 			 <screeninfo>Kartesio main window</screeninfo>
 			 <mediaobject>
@@ -148,7 +148,7 @@
 			 </mediaobject>
 		 </screenshot>
 
-		 <para>Usually, back propagation training is just what you need. For this reason it is checked by default. Just modify the number of iterations (it should not be too high, or the process may end up with way too strange value) and then press the <guibutton>Calculate</guibutton> button. Please take note that the neural network, exactly as a human brain, may give you different results: just press the <guibutton>Calculate</guibutton> button more than once and you will find out that the network calculates every time a different best fitting curve.</para>
+		 <para>Usually, back propagation training is just what you need. For this reason it is checked by default. Just modify the number of iterations (it should not be too high, or the process may end up with way too strange value) and then press the <guibutton>Calculate</guibutton> button. Please take note that the neural network, exactly as a human brain, may give you different results: if you press the <guibutton>Calculate</guibutton> button more than once and you will find out that the network calculates every time a different best fitting curve.</para>
 
 		 <screenshot>
 			 <screeninfo>Back propagation training</screeninfo>
@@ -174,7 +174,7 @@
 		 <title>Other useful things</title>
 		 
 		 <para>
-			 Sometimes it is useful to redraw the plot. For example, it is if you manually changed the best fitting curve or if you edited some points and you don't want to recalculate the fitting function. Just use the <guibutton>Draw Plot</guibutton> button.
+			 Sometimes it is useful to redraw the plot. For example, it is if you have manually changed the best fitting curve or if you edited some points and you don't want to recalculate the fitting function. Just use the <guibutton>Draw Plot</guibutton> button.
 		 </para>
 
 		 <screenshot>
@@ -186,7 +186,7 @@
 		 </screenshot>
 		 
 		 <para>
-			 To know how much the fitting curve is different from you experimental points, you can look at the root mean square error. To add it to the plot it is needed to check the checkbox <guilabel>Show RMS error</guilabel>. Then press the <guibutton>Draw Plot</guibutton> button to redraw the plot: it should contain a red label with the RMS error.
+			 To know how much the fitting curve is different from your experimental points, you can look at the root mean square error. To add it to the plot, it is needed to check the checkbox <guilabel>Show RMS error</guilabel>. Then press the <guibutton>Draw Plot</guibutton> button to redraw the plot: it should contain a red label with the RMS error.
 		 </para>
 
 		 <screenshot>
@@ -266,8 +266,8 @@
 
 			 <para>
 				 Kartesio itself can be found on <ulink
-					 url="https://projects.kde.org/projects/playground/edu/kartesio">The Kartesio home page</ulink> and
-				 is part of the &kde;-Edu project</para>
+				   url="http://www.zorbaproject.org/kartesio">The Kartesio home page</ulink> and
+				 is part of the KDE-Edu project</para>
 
 		 </sect1>
 

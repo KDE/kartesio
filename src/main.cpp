@@ -44,7 +44,7 @@ static const char version[] = APP_VERSION;
 int main(int argc, char *argv[])
 {
   
-  KAboutData about("kartesio", 0, ki18n("Kartesio"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2011-2013 Luca Tringali"), KLocalizedString(), "https://projects.kde.org/projects/playground/edu/kartesio");
+  KAboutData about("kartesio", 0, ki18n("Kartesio"), version, ki18n(description), KAboutData::License_GPL, ki18n("(C) 2011-2013 Luca Tringali"), KLocalizedString(), "www.zorbaproject.org/kartesio");
   about.addAuthor( ki18n("Luca Tringali"), KLocalizedString(), "TRINGALINVENT@libero.it" );
   //about.addCredit(ki18n("your name here"),ki18n("What you have done"));
   
