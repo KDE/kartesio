@@ -70,7 +70,7 @@ double Calculations::rmsError(QTableWidget *table,  QString func) {
 QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
     //this function calculates the best fit curve from some points and a generic function
     m_resultFunction = "";
-    m_myReport=i18n("Values obtained by maxima:")+"\n";
+    m_myReport=i18n("Values obtained by maxima:")+'\n';
     m_width = int(m_xmax - m_xmin);
     int totalcoeff=0;
     QStringList coeff;
@@ -196,8 +196,8 @@ QString Calculations::calculate(QTableWidget *table,  QLineEdit *func) {
             if (myfunz.indexOf("(%o2)")==-1) return 0;
             QString tempstr = myfunz.split("(%o2)").at(1);
             //we must delete [ and ]
-            QString cancstr = tempstr.replace("[","");
-            cancstr = cancstr.replace("]","");
+            QString cancstr = tempstr.remove("[");
+            cancstr = cancstr.remove("]");
             if (myfunz.indexOf(",")==-1 and totalcoeff>1) return 0;
             QStringList cmvalue = cancstr.split(',');
             m_myReport = m_myReport + cancstr+ '\n';

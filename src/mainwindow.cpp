@@ -448,7 +448,7 @@ void MainWindow::Openfile() {
 }
 
 void MainWindow::on_actionSave_triggered() {
-    if (mycalcs.m_file == "") {
+    if (mycalcs.m_file.isEmpty()) {
         on_actionSaveAs_triggered();
         exit;
     }
