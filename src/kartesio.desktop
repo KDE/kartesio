@@ -32,6 +32,7 @@ Comment[zh_CN]=计算多点的最佳拟合曲线
 Comment[zh_TW]=計算最符合某些點的曲線
 Terminal=false
 Name=Kartesio
+Name[ast]=Kartesio
 Name[bg]=Kartesio
 Name[bs]=Kartesio
 Name[cs]=Kartesio
