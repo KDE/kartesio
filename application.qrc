@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/document-new.png</file>
+        <file>icons/document-open.png</file>
+        <file>icons/document-save-as.png</file>
+        <file>icons/document-save.png</file>
+        <file>icons/hi16-app-kartesio.png</file>
+        <file>icons/hi32-app-kartesio.png</file>
+        <file>icons/hi64-app-kartesio.png</file>
+        <file>icons/hi128-app-kartesio.png</file>
+        <file>icons/hi256-app-kartesio.png</file>
+        <file>icons/kartesio.png</file>
+        <file>icons/kartesio.svg</file>
+        <file>icons/kate.png</file>
+        <file>icons/kmplot.png</file>
+        <file>icons/text-x-tex.png</file>
+        <file>icons/application-exit.png</file>
+        <file>icons/image-svg+xml.png</file>
+        <file>icons/text-csv.png</file>
+    </qresource>
+</RCC>

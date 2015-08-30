@@ -1,0 +1,11 @@
+Package: kartesio
+Version: 1.0-1
+Architecture: i386
+Maintainer: ZorbaProject <TRINGALINVENT@libero.it>
+Installed-Size: 1198
+Depends: libc6 (>= 2.4), libgcc1 (>= 1:4.1.1), libqt5core5a (>= 5.2.0), libqt5gui5 (>= 5.0.2) | libqt5gui5-gles (>= 5.0.2), libqt5printsupport5 (>= 5.0.2), libqt5script5 (>= 5.0.2), libqt5widgets5 (>= 5.0.2), libstdc++6 (>= 4.2.1), libqt5gui5, libglib2.0-0, libx11-6, libpng12-0, libharfbuzz0b, zlib1g, libgl1-mesa-glx, libicu52, libffi6, libpcre3, libxcb1, libfreetype6, libgraphite2-3, libglapi-mesa, libxext6, libxdamage1, libxfixes3, libx11-xcb1, libxcb-glx0, libxcb-dri2-0, libxcb-dri3-0, libxcb-present0, libxcb-sync1, libxshmfence1, libxxf86vm1, libdrm2, libxau6, libxdmcp6, maxima
+Section: science
+Priority: optional
+Homepage: http://www.zorbaproject.org/kartesio/
+Description: Program for calculating best fit curves for a set of experimental points using regression algorithms and neural networks.
+ Kartesio also allows you to better understand how a neural network works, thanks to its "automatic line recognition" feature which shows the neural network structure in real time.
